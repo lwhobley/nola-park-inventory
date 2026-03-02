@@ -7,8 +7,11 @@
 .env.development.local
 .env.test.local
 .env.production.local
-.env.*.example
 .env.*.backup
+
+# EXCEPTION: Allow .env.local.example for developers (no real secrets)
+!.env.local.example
+!.env.example
 
 # ============================================================================
 # Node.js & Dependencies
