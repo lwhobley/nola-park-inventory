@@ -1,152 +1,169 @@
-/* App.css */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
-body {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+html, body {
+  width: 100%;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen,
+    Ubuntu, Cantarell, 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+#root {
+  width: 100%;
+  height: 100%;
+}
+
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
   background-color: #f5f5f5;
+}
+
+.header {
+  background-color: #007bff;
+  color: white;
+  padding: 16px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.header h1 {
+  font-size: 24px;
+  margin: 0;
+}
+
+.main {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+}
+
+.page {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page h1 {
+  font-size: 28px;
+  margin-bottom: 16px;
   color: #333;
 }
 
-.App {
-  min-height: 100vh;
+.card {
+  background-color: white;
+  border-radius: 8px;
   padding: 20px;
-}
-
-h1, h2, h3 {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   margin-bottom: 16px;
 }
 
-p {
+.card h2 {
+  font-size: 20px;
+  margin-bottom: 8px;
+  color: #333;
+}
+
+.card p {
+  color: #666;
+  font-size: 14px;
   line-height: 1.6;
 }
 
-/* Buttons */
-.btn-primary,
-.btn-secondary,
-.btn-small {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.stat {
+  background-color: #f8f9fa;
+  padding: 16px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.stat h3 {
+  font-size: 13px;
+  color: #666;
+  margin-bottom: 8px;
   font-weight: 600;
-  transition: all 0.3s ease;
-}
-
-.btn-primary {
-  background-color: #007bff;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #0056b3;
-}
-
-.btn-secondary {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-secondary:hover {
-  background-color: #5a6268;
-}
-
-.btn-small {
-  padding: 6px 12px;
-  font-size: 12px;
-}
-
-.btn-large {
-  padding: 15px 30px;
-  font-size: 16px;
-}
-
-/* Forms */
-.search-input,
-.select-input,
-input[type="text"],
-input[type="email"],
-input[type="checkbox"] {
-  padding: 10px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  font-size: 14px;
-}
-
-/* Status Badges */
-.status-badge {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 12px;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.status-badge.ok {
-  background-color: #d4edda;
-  color: #155724;
-}
-
-.status-badge.low {
-  background-color: #fff3cd;
-  color: #856404;
-}
-
-.status-badge.out {
-  background-color: #f8d7da;
-  color: #721c24;
-}
-
-/* Cards */
-.stat-card {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-  margin-bottom: 16px;
-}
-
-.stat-card.warning {
-  border-left: 4px solid #ffc107;
-}
-
-.stat-card.danger {
-  border-left: 4px solid #dc3545;
 }
 
 .stat-value {
   font-size: 32px;
   font-weight: bold;
   color: #007bff;
-  margin-top: 10px;
+  margin: 0;
 }
 
-/* Tables */
-table {
-  width: 100%;
-  border-collapse: collapse;
+.bottom-nav {
+  display: flex;
+  justify-content: space-around;
   background-color: white;
+  border-top: 1px solid #ddd;
+  padding: 8px 0;
+  position: sticky;
+  bottom: 0;
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.05);
 }
 
-table thead {
-  background-color: #f8f9fa;
-}
-
-table th,
-table td {
+.nav-button {
+  flex: 1;
   padding: 12px;
-  text-align: left;
-  border-bottom: 1px solid #ddd;
+  border: none;
+  background: none;
+  color: #999;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
 }
 
-table th {
+.nav-button:hover {
+  background-color: #f5f5f5;
+  color: #007bff;
+}
+
+.nav-button.active {
+  color: #007bff;
+  border-bottom: 3px solid #007bff;
+}
+
+button {
+  padding: 10px 16px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
   font-weight: 600;
-  color: #333;
+  transition: background-color 0.2s;
 }
 
-table tr:hover {
-  background-color: #f8f9fa;
+button:hover {
+  background-color: #0056b3;
+}
+
+input[type="checkbox"] {
+  margin-right: 8px;
+  cursor: pointer;
+}
+
+label {
+  font-size: 14px;
+  color: #333;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
 }

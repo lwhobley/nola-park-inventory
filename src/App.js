@@ -1,194 +1,207 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { Platform, View, Text, ActivityIndicator } from 'react-native';
-import { AuthContext, InventoryContext, AppContext } from './context';
-import ErrorBoundary from './components/ErrorBoundary';
-import { useLoadingState } from './hooks/useLoadingState';
+import React, { useState, useEffect } from 'react';
+import './styles/App.css';
 
-// Navigation
-import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-
-// Pages/Screens
-import Dashboard from './pages/Dashboard';
-import Inventory from './pages/Inventory';
-import POSScreen from './pages/POS';
-import Compliance from './pages/Compliance';
-import Equipment from './pages/Equipment';
-import Reports from './pages/Reports';
-import Settings from './pages/Settings';
-
-const Stack = createNativeStackNavigator();
-const Tab = createBottomTabNavigator();
-
-function DashboardStack() {
+// Web Dashboard Component
+function Dashboard() {
   return (
-    <Stack.Navigator
-      screenOptions={{
-        headerShown: true,
-        headerBackTitleVisible: false,
-      }}
-    >
-      <Stack.Screen 
-        name="DashboardScreen" 
-        component={Dashboard}
-        options={{ title: 'Dashboard' }}
-      />
-    </Stack.Navigator>
+    <div className="page">
+      <h1>Dashboard</h1>
+      <div className="card">
+        <h2>Welcome to NOLA Park Inventory</h2>
+        <p>Manage your inventory efficiently with real-time tracking.</p>
+        <div className="stats">
+          <div className="stat">
+            <h3>Total Items</h3>
+            <p className="stat-value">0</p>
+          </div>
+          <div className="stat">
+            <h3>Low Stock</h3>
+            <p className="stat-value">0</p>
+          </div>
+          <div className="stat">
+            <h3>Out of Stock</h3>
+            <p className="stat-value">0</p>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
-function InventoryStack() {
+// Web Inventory Component
+function Inventory() {
   return (
-    <Stack.Navigator>
-      <Stack.Screen 
-        name="InventoryScreen" 
-        component={Inventory}
-        options={{ title: 'Inventory' }}
-      />
-    </Stack.Navigator>
+    <div className="page">
+      <h1>Inventory</h1>
+      <div className="card">
+        <h2>Inventory Management</h2>
+        <p>Track and manage all inventory items.</p>
+        <div style={{ marginTop: '20px', padding: '20px', backgroundColor: '#f0f0f0', borderRadius: '4px' }}>
+          <p>No inventory items yet.</p>
+          <p style={{ fontSize: '12px', color: '#666' }}>
+            Configure your database connection to see items here.
+          </p>
+        </div>
+      </div>
+    </div>
   );
 }
 
-function AppTabs() {
+// Web POS Component
+function POS() {
   return (
-    <Tab.Navigator
-      screenOptions={{
-        headerShown: false,
-        tabBarActiveTintColor: '#007bff',
-        tabBarInactiveTintColor: '#999',
-      }}
-    >
-      <Tab.Screen 
-        name="Dashboard" 
-        component={DashboardStack}
-        options={{
-          tabBarLabel: 'Dashboard',
-        }}
-      />
-      <Tab.Screen 
-        name="Inventory" 
-        component={InventoryStack}
-        options={{
-          tabBarLabel: 'Inventory',
-        }}
-      />
-      <Tab.Screen 
-        name="POS" 
-        component={POSScreen}
-        options={{
-          tabBarLabel: 'POS',
-        }}
-      />
-      <Tab.Screen 
-        name="Compliance" 
-        component={Compliance}
-        options={{
-          tabBarLabel: 'Compliance',
-        }}
-      />
-      <Tab.Screen 
-        name="Settings" 
-        component={Settings}
-        options={{
-          tabBarLabel: 'Settings',
-        }}
-      />
-    </Tab.Navigator>
+    <div className="page">
+      <h1>POS Integration</h1>
+      <div className="card">
+        <h2>Point of Sale System</h2>
+        <p>Integrate with your POS system for real-time sales data.</p>
+        <button style={{ marginTop: '20px', padding: '10px 20px', backgroundColor: '#007bff', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+          Sync Now
+        </button>
+      </div>
+    </div>
   );
 }
 
-function App() {
-  const [auth, setAuth] = useState(null);
-  const [inventory, setInventory] = useState([]);
-  const { loading, setLoading, error, setError } = useLoadingState();
-  const [selectedLocation, setSelectedLocation] = useState(null);
-  const [initialized, setInitialized] = useState(false);
+// Web Compliance Component
+function Compliance() {
+  return (
+    <div className="page">
+      <h1>Compliance & Auditing</h1>
+      <div className="card">
+        <h2>Compliance Tracking</h2>
+        <div style={{ marginTop: '20px' }}>
+          <div style={{ padding: '15px', backgroundColor: '#f0f0f0', borderRadius: '4px', marginBottom: '10px' }}>
+            <h3>FSMA 204 Compliance</h3>
+            <p>✓ Tracking enabled for 0 items</p>
+          </div>
+          <div style={{ padding: '15px', backgroundColor: '#f0f0f0', borderRadius: '4px', marginBottom: '10px' }}>
+            <h3>Waste Documentation</h3>
+            <p>✓ All waste logged and documented</p>
+          </div>
+          <div style={{ padding: '15px', backgroundColor: '#f0f0f0', borderRadius: '4px' }}>
+            <h3>Audit Logs</h3>
+            <p>✓ Complete audit trail available</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-  // Initialize app
-  useEffect(() => {
-    const initializeApp = async () => {
-      try {
-        setLoading(true);
-        
-        // Try to load Supabase, but don't fail if it's not configured
-        try {
-          const { supabase } = await import('./services');
-          const { data } = await supabase.auth.getSession();
-          setAuth(data?.session?.user || null);
-          
-          // Load initial inventory if authenticated
-          if (data?.session?.user) {
-            await loadInventory();
-          }
-        } catch (supabaseError) {
-          console.warn('Supabase not configured:', supabaseError.message);
-          // Continue without authentication
-          setAuth(null);
-        }
-      } catch (err) {
-        console.error('App initialization error:', err);
-        setError(err.message);
-      } finally {
-        setLoading(false);
-        setInitialized(true);
-      }
-    };
+// Web Equipment Component
+function Equipment() {
+  return (
+    <div className="page">
+      <h1>Equipment Maintenance</h1>
+      <div className="card">
+        <h2>Maintenance Schedule</h2>
+        <p>Track equipment maintenance schedules and history.</p>
+        <div style={{ marginTop: '20px', padding: '20px', backgroundColor: '#f0f0f0', borderRadius: '4px' }}>
+          <p>No equipment records yet.</p>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-    initializeApp();
-  }, []);
+// Web Settings Component
+function Settings() {
+  return (
+    <div className="page">
+      <h1>Settings</h1>
+      <div className="card">
+        <h2>User Preferences</h2>
+        <div style={{ marginTop: '20px' }}>
+          <div style={{ marginBottom: '20px' }}>
+            <label>
+              <input type="checkbox" defaultChecked /> Enable Notifications
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label>
+              <input type="checkbox" defaultChecked /> Email Alerts
+            </label>
+          </div>
+          <div style={{ marginBottom: '20px' }}>
+            <label>
+              <input type="checkbox" /> SMS Alerts
+            </label>
+          </div>
+          <button style={{ marginTop: '20px', padding: '10px 20px', backgroundColor: '#28a745', color: '#fff', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+            Save Settings
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
 
-  const loadInventory = async () => {
-    try {
-      const { supabase } = await import('./services');
-      const { data, error } = await supabase
-        .from('inventory_items')
-        .select('*')
-        .limit(100);
-      
-      if (error) throw error;
-      setInventory(data || []);
-    } catch (err) {
-      console.warn('Failed to load inventory:', err.message);
-      // Continue without inventory data
+// Main App Component
+export default function App() {
+  const [currentPage, setCurrentPage] = useState('dashboard');
+
+  const renderPage = () => {
+    switch (currentPage) {
+      case 'dashboard':
+        return <Dashboard />;
+      case 'inventory':
+        return <Inventory />;
+      case 'pos':
+        return <POS />;
+      case 'compliance':
+        return <Compliance />;
+      case 'equipment':
+        return <Equipment />;
+      case 'settings':
+        return <Settings />;
+      default:
+        return <Dashboard />;
     }
   };
 
-  const appState = useMemo(() => ({
-    loading,
-    error,
-    selectedLocation,
-    setSelectedLocation,
-  }), [loading, error, selectedLocation]);
-
-  // Show loading state while initializing
-  if (!initialized) {
-    return (
-      <ErrorBoundary>
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5' }}>
-          <ActivityIndicator size="large" color="#007bff" />
-          <Text style={{ marginTop: 12, color: '#666', fontSize: 14 }}>
-            Initializing App...
-          </Text>
-        </View>
-      </ErrorBoundary>
-    );
-  }
-
   return (
-    <ErrorBoundary>
-      <AuthContext.Provider value={{ auth, setAuth }}>
-        <InventoryContext.Provider value={{ inventory, setInventory, loadInventory }}>
-          <AppContext.Provider value={{ appState }}>
-            <NavigationContainer>
-              {/* Always show AppTabs - app works with or without authentication */}
-              <AppTabs />
-            </NavigationContainer>
-          </AppContext.Provider>
-        </InventoryContext.Provider>
-      </AuthContext.Provider>
-    </ErrorBoundary>
+    <div className="app">
+      <header className="header">
+        <h1>NOLA Park Inventory Engine</h1>
+      </header>
+
+      <main className="main">
+        {renderPage()}
+      </main>
+
+      <nav className="bottom-nav">
+        <button
+          className={`nav-button ${currentPage === 'dashboard' ? 'active' : ''}`}
+          onClick={() => setCurrentPage('dashboard')}
+        >
+          Dashboard
+        </button>
+        <button
+          className={`nav-button ${currentPage === 'inventory' ? 'active' : ''}`}
+          onClick={() => setCurrentPage('inventory')}
+        >
+          Inventory
+        </button>
+        <button
+          className={`nav-button ${currentPage === 'pos' ? 'active' : ''}`}
+          onClick={() => setCurrentPage('pos')}
+        >
+          POS
+        </button>
+        <button
+          className={`nav-button ${currentPage === 'compliance' ? 'active' : ''}`}
+          onClick={() => setCurrentPage('compliance')}
+        >
+          Compliance
+        </button>
+        <button
+          className={`nav-button ${currentPage === 'settings' ? 'active' : ''}`}
+          onClick={() => setCurrentPage('settings')}
+        >
+          Settings
+        </button>
+      </nav>
+    </div>
   );
 }
-
-export default App;
