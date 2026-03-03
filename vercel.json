@@ -1,7 +1,7 @@
 {
   "cleanUrls": true,
-  "framework": null,
-  "buildCommand": "npx expo export -p web",
+  "framework": "react",
+  "buildCommand": "npm run build",
   "outputDirectory": "dist",
   "rewrites": [
     {

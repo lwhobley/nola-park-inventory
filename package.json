@@ -12,7 +12,7 @@
   "license": "PROPRIETARY",
   "scripts": {
     "start": "expo start --web",
-    "build": "npx expo export -p web",
+    "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "test:supabase-connection": "node scripts/test-supabase.js",
