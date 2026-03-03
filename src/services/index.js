@@ -3,11 +3,26 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = process.env.REACT_APP_SUPABASE_URL;
 const supabaseAnonKey = process.env.REACT_APP_SUPABASE_ANON_KEY;
 
+// Log warning if credentials missing, but don't crash
 if (!supabaseUrl || !supabaseAnonKey) {
-  throw new Error('Missing Supabase credentials in environment variables');
+  console.warn(
+    'Missing Supabase credentials. Set REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY environment variables.'
+  );
 }
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey);
+// Create client even if credentials are missing (will fail gracefully on use)
+export const supabase = supabaseUrl && supabaseAnonKey 
+  ? createClient(supabaseUrl, supabaseAnonKey)
+  : {
+      auth: { getSession: async () => ({ data: null }) },
+      from: () => ({
+        select: () => ({
+          eq: () => ({
+            limit: () => Promise.resolve({ data: [], error: { message: 'Supabase not configured' } })
+          })
+        })
+      })
+    };
 
 // Weather Service with error handling
 export const weatherService = {

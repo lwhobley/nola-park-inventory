@@ -1,8 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { Platform } from 'react-native';
+import { Platform, View, Text, ActivityIndicator } from 'react-native';
 import { AuthContext, InventoryContext, AppContext } from './context';
 import ErrorBoundary from './components/ErrorBoundary';
-import { supabase } from './services';
 import { useLoadingState } from './hooks/useLoadingState';
 
 // Navigation
@@ -104,24 +103,35 @@ function App() {
   const [inventory, setInventory] = useState([]);
   const { loading, setLoading, error, setError } = useLoadingState();
   const [selectedLocation, setSelectedLocation] = useState(null);
+  const [initialized, setInitialized] = useState(false);
 
   // Initialize app
   useEffect(() => {
     const initializeApp = async () => {
       try {
         setLoading(true);
-        // Check authentication
-        const { data } = await supabase.auth.getSession();
-        setAuth(data?.session?.user || null);
         
-        // Load initial inventory
-        if (data?.session?.user) {
-          await loadInventory();
+        // Try to load Supabase, but don't fail if it's not configured
+        try {
+          const { supabase } = await import('./services');
+          const { data } = await supabase.auth.getSession();
+          setAuth(data?.session?.user || null);
+          
+          // Load initial inventory if authenticated
+          if (data?.session?.user) {
+            await loadInventory();
+          }
+        } catch (supabaseError) {
+          console.warn('Supabase not configured:', supabaseError.message);
+          // Continue without authentication
+          setAuth(null);
         }
       } catch (err) {
+        console.error('App initialization error:', err);
         setError(err.message);
       } finally {
         setLoading(false);
+        setInitialized(true);
       }
     };
 
@@ -130,6 +140,7 @@ function App() {
 
   const loadInventory = async () => {
     try {
+      const { supabase } = await import('./services');
       const { data, error } = await supabase
         .from('inventory_items')
         .select('*')
@@ -138,7 +149,8 @@ function App() {
       if (error) throw error;
       setInventory(data || []);
     } catch (err) {
-      setError('Failed to load inventory: ' + err.message);
+      console.warn('Failed to load inventory:', err.message);
+      // Continue without inventory data
     }
   };
 
@@ -149,13 +161,28 @@ function App() {
     setSelectedLocation,
   }), [loading, error, selectedLocation]);
 
+  // Show loading state while initializing
+  if (!initialized) {
+    return (
+      <ErrorBoundary>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f5f5f5' }}>
+          <ActivityIndicator size="large" color="#007bff" />
+          <Text style={{ marginTop: 12, color: '#666', fontSize: 14 }}>
+            Initializing App...
+          </Text>
+        </View>
+      </ErrorBoundary>
+    );
+  }
+
   return (
     <ErrorBoundary>
       <AuthContext.Provider value={{ auth, setAuth }}>
         <InventoryContext.Provider value={{ inventory, setInventory, loadInventory }}>
           <AppContext.Provider value={{ appState }}>
             <NavigationContainer>
-              {auth ? <AppTabs /> : <Stack.Navigator>{/* Login screen */}</Stack.Navigator>}
+              {/* Always show AppTabs - app works with or without authentication */}
+              <AppTabs />
             </NavigationContainer>
           </AppContext.Provider>
         </InventoryContext.Provider>
