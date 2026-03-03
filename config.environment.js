@@ -47,8 +47,8 @@ if (missing.length > 0 && process.env.NODE_ENV === 'production') {
 // Build config object
 const config = {
   // Supabase (Required)
-  SUPABASE_URL: process.env.REACT_APP_SUPABASE_URL || '',
-  SUPABASE_ANON_KEY: process.env.REACT_APP_SUPABASE_ANON_KEY || '',
+  EXPO_PUBLIC_SUPABASE_URL: process.env.REACT_APP_SUPABASE_URL || '',
+  EXPO_PUBLIC_SUPABASE_ANON_KEY: process.env.REACT_APP_SUPABASE_ANON_KEY || '',
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY || '',
 
   // Feature Flags
