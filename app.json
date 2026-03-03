@@ -30,14 +30,6 @@
       "bundler": "metro",
       "output": "static"
     },
-    "plugins": [
-      [
-        "expo-screen-orientation",
-        {
-          "orientationLock": "portrait"
-        }
-      ]
-    ],
     "scheme": "nolapark",
     "description": "AI-powered inventory management system for NOLA City Park",
     "owner": "Liffort W. Hobley"
