@@ -4,7 +4,7 @@ import { createClient } from '@supabase/supabase-js';
 import config from './config.environment';
 
 // 1. IMPORT DIRECTLY FROM THE FOLDERS YOU SEE
-// We are skipping 'navigation' because it doesn't exist in your list!
+// We are skipping 'navigation' because it doesn't exist in your list
 import Dashboard from './pages/Dashboard'; 
 import { AuthProvider } from './context/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
