@@ -1,32 +1,101 @@
-import React, { useState, useContext } from 'react';
+import React, { useContext } from 'react';
+import {
+  View,
+  Text,
+  StyleSheet,
+  ScrollView,
+  FlatList,
+} from 'react-native';
 import { InventoryContext } from '../context';
 import ComplianceTracker from '../components/ComplianceTracker';
-import '../styles/pages.css';
 
 function Compliance() {
   const { inventory } = useContext(InventoryContext);
-  const [complianceStatus, setComplianceStatus] = useState('pending');
+
+  const ComplianceCard = ({ title, content, status }) => (
+    <View style={styles.card}>
+      <Text style={styles.cardTitle}>{title}</Text>
+      <Text style={[styles.cardContent, { color: status === 'compliant' ? '#28a745' : '#ffc107' }]}>
+        {content}
+      </Text>
+    </View>
+  );
 
   return (
-    <div className="compliance-page">
-      <h1>Compliance & Auditing</h1>
-      <div className="compliance-overview">
-        <div className="compliance-card">
-          <h3>FSMA 204 Compliance</h3>
-          <p className="status-badge fsma-compliant">Compliant</p>
-        </div>
-        <div className="compliance-card">
-          <h3>Lot Tracking</h3>
-          <p>Tracking {inventory.length} items</p>
-        </div>
-        <div className="compliance-card">
-          <h3>Waste Documentation</h3>
-          <p>0 items logged today</p>
-        </div>
-      </div>
-      <ComplianceTracker inventory={inventory} />
-    </div>
+    <ScrollView style={styles.container}>
+      <View style={styles.header}>
+        <Text style={styles.title}>Compliance & Auditing</Text>
+      </View>
+
+      <View style={styles.overview}>
+        <ComplianceCard
+          title="FSMA 204 Compliance"
+          content="Compliant"
+          status="compliant"
+        />
+        <ComplianceCard
+          title="Lot Tracking"
+          content={`Tracking ${inventory.length} items`}
+        />
+        <ComplianceCard
+          title="Waste Documentation"
+          content="0 items logged today"
+        />
+      </View>
+
+      <View style={styles.trackerSection}>
+        <ComplianceTracker inventory={inventory} />
+      </View>
+    </ScrollView>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: '#f5f5f5',
+  },
+  header: {
+    backgroundColor: '#fff',
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: '#eee',
+  },
+  title: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  overview: {
+    padding: 16,
+    gap: 12,
+  },
+  card: {
+    backgroundColor: '#fff',
+    padding: 16,
+    borderRadius: 8,
+    borderLeftWidth: 4,
+    borderLeftColor: '#007bff',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+    elevation: 2,
+  },
+  cardTitle: {
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#333',
+    marginBottom: 8,
+  },
+  cardContent: {
+    fontSize: 14,
+    color: '#666',
+  },
+  trackerSection: {
+    padding: 16,
+  },
+});
 
 export default Compliance;
