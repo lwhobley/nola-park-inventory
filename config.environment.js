@@ -5,8 +5,8 @@
  */
 
 const requiredVars = [
-  'REACT_APP_SUPABASE_URL',
-  'REACT_APP_SUPABASE_ANON_KEY',
+  'EXPO_PUBLIC_SUPABASE_URL',
+  'EXPO_PUBLIC_SUPABASE_ANON_KEY',
 ];
 
 const optionalVars = [
