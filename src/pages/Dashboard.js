@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, SafeAreaView, ActivityIndicator } from 'react-native';
 import { createClient } from '@supabase/supabase-js';
-import config from '../../config.environment';
+import config from '../config';
 
 // Initialize Supabase for the Dashboard
 const supabase = createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
