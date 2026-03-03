@@ -5,7 +5,7 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 // 1. SMART IMPORT: We wrap the Dashboard in a try/catch during the import itself
 let Dashboard;
 try {
-  Dashboard = require('./src/pages/Dashboard').default;
+  Dashboard = require('./src/pages/inventory').default;
 } catch (importError) {
   console.error(importError);
 }
