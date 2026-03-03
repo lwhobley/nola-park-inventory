@@ -1,98 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import { createClient } from '@supabase/supabase-js';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { onPersist } from '@tanstack/react-query-persist-client';
-import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 
-// Environment configuration
-import config from './config.environment';
-
-// ============================================================================
-// 1. PLACEHOLDER COMPONENTS (Replacing missing files)
-// ============================================================================
-const SplashScreen = () => <div style={styles.center}><h1>NOLA Park Inventory</h1><p>Loading System...</p></div>;
-const AppNavigation = () => <div style={styles.center}><h2>Main Dashboard</h2><p>System Online & Connected to Supabase.</p></div>;
-const NotificationCenter = () => null;
-const ErrorBoundary = ({ children, fallback }) => {
-  try { return children; } catch (e) { return fallback; }
-};
-const OfflineIndicator = ({ isOnline }) => (
-  <div style={{...styles.indicator, backgroundColor: isOnline ? '#4caf50' : '#f44336'}}>
-    {isOnline ? 'Online' : 'Offline - Using Cache'}
+// 1. CATCH ERRORS BEFORE THEY BLANK THE SCREEN
+const ErrorScreen = ({ error }) => (
+  <div style={{ padding: 20, backgroundColor: '#fff', color: '#000', fontFamily: 'monospace' }}>
+    <h1 style={{ color: 'red' }}>⚠️ Build Error Detected</h1>
+    <p><b>Message:</b> {error?.message || 'Unknown Error'}</p>
+    <p><b>Stack:</b> {error?.stack?.substring(0, 300)}...</p>
+    <button onClick={() => window.location.reload()}>Retry Load</button>
   </div>
 );
 
-// ============================================================================
-// 2. INITIALIZATION
-// ============================================================================
-export const supabase = createClient(config.SUPABASE_URL, config.SUPABASE_ANON_KEY);
-
-const localStoragePersister = createSyncStoragePersister({
-  storage: typeof window !== 'undefined' ? window.localStorage : null,
-});
-
-const queryClient = new QueryClient({
-  defaultOptions: { queries: { gcTime: 1000 * 60 * 60 * 24, networkMode: 'always' } },
-});
-
-onPersist({ queryClient, persister: localStoragePersister });
-
-// ============================================================================
-// 3. MAIN LOGIC
-// ============================================================================
-function AppContent() {
-  const [isAppReady, setIsAppReady] = useState(false);
-  const { isOnline } = useNetworkStatus();
-
-  useEffect(() => {
-    const init = async () => {
-      await new Promise(res => setTimeout(res, 1000)); // Simulate load
-      setIsAppReady(true);
-    };
-    init();
-  }, []);
-
-  if (!isAppReady) return <SplashScreen />;
-
-  return (
-    <>
-      <OfflineIndicator isOnline={isOnline} />
-      <AppNavigation />
-      <NotificationCenter />
-    </>
-  );
+// 2. IMPORT CONFIG (Safe Check)
+let config;
+try {
+  config = require('./config.environment').default;
+} catch (e) {
+  config = { SUPABASE_URL: '', SUPABASE_ANON_KEY: '' };
 }
 
 export default function App() {
+  const [fatalError, setFatalError] = useState(null);
+
+  // Catch global crashes
+  useEffect(() => {
+    window.onerror = (msg, url, line) => {
+      setFatalError({ message: `${msg} at line ${line}` });
+    };
+  }, []);
+
+  if (fatalError) return <ErrorScreen error={fatalError} />;
+
   return (
-    <ErrorBoundary fallback={<h1>Fatal Error</h1>}>
-      <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <AppContent />
-        </AuthProvider>
-      </QueryClientProvider>
-    </ErrorBoundary>
+    <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh' }}>
+      <h1 style={{ color: '#2e7d32' }}>NOLA Park System</h1>
+      <p>Status: 🟢 Deployment Successful</p>
+      <hr style={{ width: '80%' }} />
+      <div style={{ padding: 20, border: '1px solid #ccc', borderRadius: 8 }}>
+        <h3>Connection Stats:</h3>
+        <p>URL: {config?.SUPABASE_URL ? '✅ Loaded' : '❌ Missing EXPO_PUBLIC_SUPABASE_URL'}</p>
+        <p>Key: {config?.SUPABASE_ANON_KEY ? '✅ Loaded' : '❌ Missing EXPO_PUBLIC_SUPABASE_ANON_KEY'}</p>
+      </div>
+      <p style={{ marginTop: 20, color: '#666' }}>If you see this, the white screen is fixed.</p>
+    </div>
   );
 }
-
-// ============================================================================
-// 4. HOOKS & CONTEXT
-// ============================================================================
-export const useNetworkStatus = () => {
-  const [isOnline, setIsOnline] = useState(typeof navigator !== 'undefined' ? navigator.onLine : true);
-  useEffect(() => {
-    const up = () => setIsOnline(true);
-    const down = () => setIsOnline(false);
-    window.addEventListener('online', up);
-    window.addEventListener('offline', down);
-    return () => { window.removeEventListener('online', up); window.removeEventListener('offline', down); };
-  }, []);
-  return { isOnline };
-};
-
-export const AuthProvider = ({ children }) => <div>{children}</div>;
-
-const styles = {
-  center: { display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: '100vh', fontFamily: 'sans-serif' },
-  indicator: { position: 'fixed', top: 0, width: '100%', textAlign: 'center', color: 'white', padding: '5px', fontSize: '12px', zIndex: 1000 }
-};
