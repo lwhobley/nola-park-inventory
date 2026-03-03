@@ -11,8 +11,7 @@ import { onPersist } from '@tanstack/react-query-persist-client';
 import { createSyncStoragePersister } from '@tanstack/query-sync-storage-persister';
 
 // Environment configuration
-import config from './
-config.environment';
+import config from './config.environment';
 
 // Main Components
 import AppNavigation from './navigation/AppNavigation';
