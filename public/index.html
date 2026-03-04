@@ -56,6 +56,7 @@
             width: 100%;
             max-width: 400px;
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            text-align: center;
         }
 
         .auth-container h1 {
@@ -66,25 +67,56 @@
 
         .auth-container p {
             color: #a0a0a0;
-            margin-bottom: 24px;
+            margin-bottom: 12px;
+            font-size: 14px;
         }
 
-        .auth-input {
+        .owner-info {
+            background: rgba(64, 216, 95, 0.15);
+            border: 1px solid rgba(64, 216, 95, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 12px;
+            color: #40d85f;
+        }
+
+        .pin-input-container {
+            margin: 24px 0;
+        }
+
+        .pin-input-label {
+            color: #c0c0c0;
+            margin-bottom: 12px;
+            display: block;
+            font-weight: 600;
+        }
+
+        .pin-input {
             width: 100%;
-            padding: 12px 16px;
-            border: 1px solid rgba(255, 140, 66, 0.2);
+            padding: 16px;
+            border: 2px solid rgba(255, 140, 66, 0.2);
             border-radius: 8px;
             background: rgba(255, 107, 53, 0.05);
             color: #e0e0e0;
-            font-size: 14px;
-            margin-bottom: 12px;
-            font-family: inherit;
+            font-size: 32px;
+            text-align: center;
+            font-weight: 600;
+            letter-spacing: 8px;
+            font-family: 'Courier New', monospace;
+            margin-bottom: 16px;
         }
 
-        .auth-input:focus {
+        .pin-input:focus {
             outline: none;
             border-color: #ff8c42;
-            box-shadow: 0 0 16px rgba(255, 140, 66, 0.2);
+            box-shadow: 0 0 16px rgba(255, 140, 66, 0.3);
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .pin-input::placeholder {
+            color: #505050;
+            letter-spacing: 8px;
         }
 
         .auth-button {
@@ -92,12 +124,13 @@
             background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
             color: white;
             border: none;
-            padding: 12px;
+            padding: 14px;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            margin-bottom: 8px;
+            font-size: 16px;
             box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3);
+            transition: all 0.3s ease;
         }
 
         .auth-button:hover {
@@ -105,16 +138,13 @@
             box-shadow: 0 8px 28px rgba(255, 107, 53, 0.4);
         }
 
-        .auth-toggle {
-            color: #a0a0a0;
-            text-align: center;
-            cursor: pointer;
+        .auth-button:active {
+            transform: translateY(0);
         }
 
-        .auth-toggle span {
-            color: #ff8c42;
-            cursor: pointer;
-            text-decoration: underline;
+        .auth-message {
+            margin-top: 16px;
+            font-size: 12px;
         }
 
         .app-container {
@@ -261,8 +291,7 @@
         }
 
         input[type="text"],
-        input[type="email"],
-        input[type="password"],
+        input[type="number"],
         select {
             width: 100%;
             padding: 12px 16px;
@@ -385,27 +414,24 @@
     </style>
 </head>
 <body>
-    <!-- Auth Page -->
+    <!-- Auth Page - PIN Entry Only -->
     <div id="authPage" class="auth-page active">
         <div class="auth-container">
             <h1>🌟 NOLA Park</h1>
             <p>Inventory Management System</p>
             
-            <div id="loginForm">
-                <input type="email" id="loginEmail" class="auth-input" placeholder="Email" required>
-                <input type="password" id="loginPassword" class="auth-input" placeholder="Password" required>
-                <button class="auth-button" onclick="login()">Login</button>
-                <div class="auth-toggle">Don't have an account? <span onclick="toggleAuth()">Sign Up</span></div>
+            <div class="owner-info">
+                🔐 Owner Access Only<br>
+                Liffort Hobley
             </div>
 
-            <div id="signupForm" style="display: none;">
-                <input type="email" id="signupEmail" class="auth-input" placeholder="Email" required>
-                <input type="password" id="signupPassword" class="auth-input" placeholder="Password (min 6)" required>
-                <button class="auth-button" onclick="signup()">Sign Up</button>
-                <div class="auth-toggle">Already have an account? <span onclick="toggleAuth()">Login</span></div>
+            <div class="pin-input-container">
+                <label class="pin-input-label">Enter 4-Digit PIN:</label>
+                <input type="password" id="pinInput" class="pin-input" placeholder="●●●●" maxlength="4" inputmode="numeric" required autofocus>
+                <button class="auth-button" onclick="verifyPin()">Access System</button>
             </div>
 
-            <div id="authMessage" style="margin-top: 12px;"></div>
+            <div id="authMessage" class="auth-message"></div>
         </div>
     </div>
 
@@ -415,7 +441,7 @@
             <h1>🌟 NOLA Park Inventory</h1>
             <div class="header-subtitle">AI-Powered Operations Hub</div>
             <div class="user-info">
-                User: <span id="userEmail">Loading...</span>
+                Owner: Liffort Hobley
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
         </div>
@@ -448,6 +474,7 @@
                     <h3>📊 System Status</h3>
                     <p><strong>Database:</strong> <span style="color: #40d85f;">✓ Connected</span></p>
                     <p><strong>Data Sync:</strong> <span style="color: #40d85f;">✓ Real-time</span></p>
+                    <p><strong>Authentication:</strong> <span style="color: #40d85f;">✓ PIN Verified</span></p>
                     <button onclick="loadDashboard()">Refresh Data</button>
                 </div>
             </div>
@@ -497,13 +524,14 @@
 
             <div id="settings" class="page">
                 <h2>Settings</h2>
-                <div class="page-subtitle">User preferences</div>
+                <div class="page-subtitle">System settings and information</div>
                 
                 <div class="card">
-                    <h3>⚙️ System Settings</h3>
+                    <h3>⚙️ System Information</h3>
+                    <p><strong>Owner:</strong> Liffort Hobley</p>
                     <p><strong>API Status:</strong> <span style="color: #40d85f;">✓ Connected</span></p>
-                    <p><strong>Authentication:</strong> <span style="color: #40d85f;">✓ Active</span></p>
-                    <p id="userStats">Loading user information...</p>
+                    <p><strong>Authentication:</strong> <span style="color: #40d85f;">✓ PIN Security</span></p>
+                    <p><strong>Database:</strong> <span style="color: #40d85f;">✓ Supabase PostgreSQL</span></p>
                     <button onclick="logout()">Logout</button>
                 </div>
             </div>
@@ -519,12 +547,14 @@
     </div>
 
     <script>
-        // Supabase Configuration
+        // Configuration
         const SUPABASE_URL = 'https://palgbegkojkdiqgdcihp.supabase.co';
         const SUPABASE_ANON_KEY = 'sb_publishable_i8c5ydQb26nTiQHJW0nM0w_w9QuYqkA';
+        const OWNER_PIN = '2445';
+        const OWNER_NAME = 'Liffort Hobley';
         
         let supabase = null;
-        let currentUser = null;
+        let isAuthenticated = false;
 
         // Initialize Supabase
         function initSupabase() {
@@ -532,11 +562,10 @@
             checkAuth();
         }
 
-        // Check Authentication Status
-        async function checkAuth() {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session) {
-                currentUser = session.user;
+        // Check if already authenticated
+        function checkAuth() {
+            const auth = sessionStorage.getItem('nola_park_auth');
+            if (auth === 'true') {
                 showApp();
                 loadDashboard();
             } else {
@@ -544,67 +573,43 @@
             }
         }
 
-        // Toggle between Login and Signup
-        function toggleAuth() {
-            document.getElementById('loginForm').style.display = 
-                document.getElementById('loginForm').style.display === 'none' ? 'block' : 'none';
-            document.getElementById('signupForm').style.display = 
-                document.getElementById('signupForm').style.display === 'none' ? 'block' : 'none';
-            document.getElementById('authMessage').innerHTML = '';
-        }
-
-        // Login
-        async function login() {
-            const email = document.getElementById('loginEmail').value;
-            const password = document.getElementById('loginPassword').value;
+        // Verify PIN
+        function verifyPin() {
+            const pinInput = document.getElementById('pinInput').value;
+            const messageEl = document.getElementById('authMessage');
             
-            try {
-                const { error } = await supabase.auth.signInWithPassword({ email, password });
-                if (error) {
-                    showMessage('authMessage', error.message, 'error');
-                } else {
-                    checkAuth();
-                }
-            } catch (err) {
-                showMessage('authMessage', err.message, 'error');
-            }
-        }
-
-        // Signup
-        async function signup() {
-            const email = document.getElementById('signupEmail').value;
-            const password = document.getElementById('signupPassword').value;
-            
-            try {
-                const { error } = await supabase.auth.signUp({ email, password });
-                if (error) {
-                    showMessage('authMessage', error.message, 'error');
-                } else {
-                    showMessage('authMessage', 'Signup successful! Please login.', 'success');
-                    setTimeout(() => toggleAuth(), 2000);
-                }
-            } catch (err) {
-                showMessage('authMessage', err.message, 'error');
+            if (pinInput === OWNER_PIN) {
+                sessionStorage.setItem('nola_park_auth', 'true');
+                messageEl.innerHTML = '';
+                showApp();
+                loadDashboard();
+            } else {
+                messageEl.innerHTML = '<div class="error-message">❌ Invalid PIN. Try again.</div>';
+                document.getElementById('pinInput').value = '';
+                document.getElementById('pinInput').focus();
             }
         }
 
         // Logout
-        async function logout() {
-            await supabase.auth.signOut();
+        function logout() {
+            sessionStorage.removeItem('nola_park_auth');
+            isAuthenticated = false;
             showAuth();
-            currentUser = null;
+            document.getElementById('pinInput').value = '';
+            document.getElementById('pinInput').focus();
         }
 
         // Show/Hide Pages
         function showAuth() {
             document.getElementById('authPage').classList.add('active');
             document.getElementById('appContainer').style.display = 'none';
+            document.getElementById('pinInput').focus();
         }
 
         function showApp() {
             document.getElementById('authPage').classList.remove('active');
             document.getElementById('appContainer').style.display = 'flex';
-            document.getElementById('userEmail').textContent = currentUser.email;
+            isAuthenticated = true;
         }
 
         function showPage(pageName) {
@@ -617,22 +622,18 @@
         // Load Dashboard Data
         async function loadDashboard() {
             try {
-                // Get inventory items count
                 const { count: itemCount } = await supabase
                     .from('inventory_items')
                     .select('*', { count: 'exact' });
                 
                 document.getElementById('totalItems').textContent = itemCount || 0;
                 
-                // Get low stock count
                 const { data: lowStock } = await supabase
                     .from('inventory_items')
                     .select('*')
                     .lt('current_stock', 10);
                 
                 document.getElementById('lowStockCount').textContent = lowStock?.length || 0;
-                
-                showMessage('', 'Dashboard updated!', 'success');
             } catch (err) {
                 console.error('Error loading dashboard:', err);
             }
@@ -647,7 +648,7 @@
             const stock = document.getElementById('stockInput').value;
 
             if (!sku || !name || !stock) {
-                showMessage('', 'Please fill required fields', 'error');
+                showMessage('Please fill required fields', 'error');
                 return;
             }
 
@@ -660,22 +661,23 @@
                         category,
                         selling_price: price,
                         current_stock: stock,
-                        organization_id: currentUser.id
+                        organization_id: 'nola-park-owner'
                     }]);
 
                 if (error) {
-                    showMessage('', error.message, 'error');
+                    showMessage(error.message, 'error');
                 } else {
-                    showMessage('', 'Item added successfully!', 'success');
+                    showMessage('Item added successfully!', 'success');
                     document.getElementById('skuInput').value = '';
                     document.getElementById('nameInput').value = '';
                     document.getElementById('categoryInput').value = '';
                     document.getElementById('priceInput').value = '';
                     document.getElementById('stockInput').value = '';
                     loadInventory();
+                    loadDashboard();
                 }
             } catch (err) {
-                showMessage('', err.message, 'error');
+                showMessage(err.message, 'error');
             }
         }
 
@@ -730,21 +732,26 @@
         }
 
         // Generate Report
-        async function generateReport() {
-            showMessage('', 'Report generation coming soon!', 'success');
+        function generateReport() {
+            showMessage('Report generation coming soon!', 'success');
         }
 
         // Show Message
-        function showMessage(elementId, message, type) {
-            let element = document.getElementById(elementId);
-            if (!element) {
-                element = document.createElement('div');
-                element.id = elementId;
-                document.body.appendChild(element);
-            }
-            element.innerHTML = `<div class="${type}-message">${message}</div>`;
-            setTimeout(() => element.innerHTML = '', 5000);
+        function showMessage(message, type) {
+            const div = document.createElement('div');
+            div.className = `${type}-message`;
+            div.textContent = message;
+            const mainContent = document.querySelector('.main');
+            mainContent.insertBefore(div, mainContent.firstChild);
+            setTimeout(() => div.remove(), 5000);
         }
+
+        // Allow Enter key to submit PIN
+        document.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter' && document.getElementById('pinInput').value.length === 4) {
+                verifyPin();
+            }
+        });
 
         // Initialize on load
         window.addEventListener('load', initSupabase);
