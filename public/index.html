@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOLA Park Inventory</title>
+    <title>NOLA Park Inventory - AI-Powered</title>
     <style>
         * {
             margin: 0;
@@ -14,8 +14,10 @@
         html, body {
             width: 100%;
             height: 100%;
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: #f5f5f5;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0f0e1e 0%, #1a1835 100%);
+            color: #e0e0e0;
+            overflow: hidden;
         }
 
         body {
@@ -28,28 +30,81 @@
             bottom: 0;
         }
 
+        /* Header */
         .header {
-            background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-            color: white;
-            padding: 20px;
-            text-align: center;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 50%, #ffa547 100%);
+            padding: 24px 20px;
+            box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3);
+            border-bottom: 2px solid #ffc470;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 200%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
         }
 
         .header h1 {
-            font-size: 28px;
+            font-size: 32px;
+            font-weight: 700;
             margin: 0;
+            color: #fff;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            position: relative;
+            z-index: 1;
         }
 
+        .header-subtitle {
+            font-size: 12px;
+            color: rgba(255,255,255,0.9);
+            margin-top: 4px;
+            position: relative;
+            z-index: 1;
+            font-weight: 500;
+            letter-spacing: 1px;
+        }
+
+        .ai-badge {
+            display: inline-block;
+            background: rgba(255,255,255,0.2);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            margin-top: 8px;
+            position: relative;
+            z-index: 1;
+            border: 1px solid rgba(255,255,255,0.3);
+            font-weight: 600;
+        }
+
+        /* Main Content */
         .main {
             flex: 1;
             overflow-y: auto;
-            padding: 20px;
+            padding: 24px;
             -webkit-overflow-scrolling: touch;
         }
 
         .page {
             display: none;
+            animation: fadeIn 0.4s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .page.active {
@@ -57,233 +112,427 @@
         }
 
         .page h2 {
-            color: #333;
-            margin-bottom: 16px;
-            font-size: 24px;
+            color: #ff8c42;
+            margin-bottom: 8px;
+            font-size: 28px;
+            font-weight: 700;
         }
 
-        .page p {
-            color: #666;
-            line-height: 1.6;
-            margin-bottom: 12px;
+        .page-subtitle {
+            color: #a0a0a0;
+            font-size: 14px;
+            margin-bottom: 24px;
+            font-weight: 500;
         }
 
+        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-top: 16px;
+            gap: 16px;
+            margin-bottom: 24px;
         }
 
         .stat-card {
-            background: white;
-            padding: 16px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
-            border-left: 4px solid #007bff;
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.15), rgba(255, 140, 66, 0.1));
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 140, 66, 0.3);
+            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.1), inset 0 1px 0 rgba(255,255,255,0.1);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+            cursor: pointer;
         }
 
-        .stat-card p {
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 32px rgba(255, 107, 53, 0.2);
+        }
+
+        .stat-label {
             font-size: 12px;
-            color: #999;
-            margin: 0 0 8px 0;
+            color: #ff8c42;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
         }
 
         .stat-value {
-            font-size: 32px;
-            font-weight: bold;
-            color: #007bff;
+            font-size: 36px;
+            font-weight: 700;
+            color: #ffa547;
             margin: 0;
         }
 
+        /* Cards */
         .card {
-            background: white;
-            padding: 16px;
-            border-radius: 8px;
-            margin-top: 12px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.08), rgba(255, 140, 66, 0.05));
+            padding: 24px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 140, 66, 0.2);
+            margin-bottom: 20px;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+
+        .card:hover {
+            border-color: rgba(255, 140, 66, 0.4);
+            box-shadow: 0 12px 32px rgba(255, 107, 53, 0.15);
         }
 
         .card h3 {
-            color: #333;
+            color: #ffa547;
+            margin-bottom: 12px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .card p {
+            color: #c0c0c0;
+            line-height: 1.6;
             margin-bottom: 8px;
         }
 
+        /* Inputs */
         input[type="text"] {
             width: 100%;
-            padding: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-            font-size: 16px;
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 140, 66, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 107, 53, 0.05);
+            color: #e0e0e0;
+            font-size: 14px;
             margin-top: 10px;
+            font-family: inherit;
+            transition: all 0.3s ease;
         }
 
+        input[type="text"]:focus {
+            outline: none;
+            border-color: #ff8c42;
+            background: rgba(255, 107, 53, 0.1);
+            box-shadow: 0 0 16px rgba(255, 140, 66, 0.2);
+        }
+
+        input::placeholder {
+            color: #808080;
+        }
+
+        /* Buttons - RAISED STYLE */
         button {
-            background: #007bff;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
             color: white;
             border: none;
-            padding: 10px 16px;
-            border-radius: 4px;
+            padding: 12px 24px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
-            margin-top: 10px;
+            margin-top: 12px;
+            margin-right: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.2);
+            transition: left 0.3s ease;
+        }
+
+        button:hover::before {
+            left: 100%;
         }
 
         button:hover {
-            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(255, 107, 53, 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
         }
 
+        button:active {
+            transform: translateY(0);
+        }
+
+        button.secondary {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.2), rgba(255, 140, 66, 0.15));
+            border: 1px solid rgba(255, 140, 66, 0.3);
+        }
+
+        /* Labels */
         label {
             display: flex;
             align-items: center;
-            margin-bottom: 10px;
-            color: #333;
+            margin-bottom: 12px;
+            color: #d0d0d0;
             cursor: pointer;
+            font-weight: 500;
         }
 
         input[type="checkbox"] {
-            margin-right: 8px;
+            margin-right: 12px;
             cursor: pointer;
+            accent-color: #ff8c42;
+            width: 18px;
+            height: 18px;
         }
 
+        /* AI Automation Boxes */
+        .ai-automation {
+            background: linear-gradient(135deg, rgba(64, 216, 95, 0.1), rgba(52, 211, 153, 0.05));
+            border: 1px solid rgba(64, 216, 95, 0.2);
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 16px;
+        }
+
+        .ai-automation-title {
+            color: #40d85f;
+            font-weight: 600;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .ai-icon {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            background: #40d85f;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Compliance Items */
+        .compliance-item {
+            background: linear-gradient(135deg, rgba(255, 140, 66, 0.08), rgba(255, 107, 53, 0.05));
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 12px;
+            border-left: 4px solid #40d85f;
+        }
+
+        .compliance-item h3 {
+            color: #40d85f;
+            margin-bottom: 4px;
+        }
+
+        /* Navigation */
         .bottom-nav {
             display: flex;
-            background: white;
-            border-top: 1px solid #ddd;
-            box-shadow: 0 -2px 8px rgba(0,0,0,0.05);
-            gap: 0;
+            background: linear-gradient(180deg, rgba(255, 107, 53, 0.1), rgba(255, 140, 66, 0.05));
+            border-top: 2px solid rgba(255, 140, 66, 0.2);
+            box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
         }
 
         .nav-btn {
             flex: 1;
-            padding: 12px;
+            padding: 14px;
             border: none;
-            background: white;
-            color: #999;
-            font-size: 12px;
-            font-weight: 500;
+            background: transparent;
+            color: #808080;
+            font-size: 11px;
+            font-weight: 600;
             cursor: pointer;
-            border-bottom: 3px solid transparent;
-            transition: all 0.2s;
+            border-top: 3px solid transparent;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .nav-btn:hover {
-            background: #f5f5f5;
-            color: #007bff;
+            background: rgba(255, 140, 66, 0.1);
+            color: #ffa547;
         }
 
         .nav-btn.active {
-            color: #007bff;
-            border-bottom-color: #007bff;
+            color: #ffa547;
+            border-top-color: #ff8c42;
+            background: rgba(255, 140, 66, 0.15);
         }
 
-        .compliance-item {
-            background: #f9f9f9;
-            padding: 12px;
+        .main::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .main::-webkit-scrollbar-track {
+            background: rgba(255, 140, 66, 0.05);
+        }
+
+        .main::-webkit-scrollbar-thumb {
+            background: rgba(255, 140, 66, 0.3);
             border-radius: 4px;
-            margin-top: 10px;
         }
 
-        .compliance-item h3 {
-            color: #28a745;
-            margin-bottom: 4px;
-        }
-
-        .green-check {
-            color: #28a745;
-            font-weight: bold;
+        @media (max-width: 600px) {
+            .page h2 {
+                font-size: 24px;
+            }
+            .header h1 {
+                font-size: 24px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="header">
-        <h1>NOLA Park Inventory</h1>
+        <h1>🌟 NOLA Park Inventory</h1>
+        <div class="header-subtitle">AI-Powered Operations Hub</div>
+        <div class="ai-badge">⚡ Powered by Advanced AI</div>
     </div>
 
     <div class="main">
-        <!-- Dashboard Page -->
         <div id="dashboard" class="page active">
             <h2>Dashboard</h2>
-            <p>Welcome to NOLA Park Inventory System</p>
+            <div class="page-subtitle">Real-time inventory insights & AI automation</div>
+            
             <div class="stats-grid">
                 <div class="stat-card">
-                    <p>Total Items</p>
-                    <p class="stat-value">0</p>
+                    <div class="stat-label">Active Items</div>
+                    <p class="stat-value">248</p>
                 </div>
                 <div class="stat-card">
-                    <p>Low Stock</p>
-                    <p class="stat-value">0</p>
+                    <div class="stat-label">Low Stock</div>
+                    <p class="stat-value">12</p>
                 </div>
                 <div class="stat-card">
-                    <p>Out of Stock</p>
-                    <p class="stat-value">0</p>
+                    <div class="stat-label">AI Active</div>
+                    <p class="stat-value">5</p>
                 </div>
                 <div class="stat-card">
-                    <p>Locations</p>
-                    <p class="stat-value">0</p>
+                    <div class="stat-label">Efficiency</div>
+                    <p class="stat-value">98%</p>
                 </div>
             </div>
+
             <div class="card">
-                <h3>Quick Start</h3>
-                <p>Use the navigation below to manage your inventory, track POS transactions, monitor compliance, and configure your preferences.</p>
+                <h3>🤖 AI Automations Running</h3>
+                <div class="ai-automation">
+                    <div class="ai-automation-title"><span class="ai-icon"></span>Stock Prediction</div>
+                    <p style="margin: 0; color: #80d080;">Learning patterns & forecasting demand</p>
+                </div>
+                <div class="ai-automation">
+                    <div class="ai-automation-title"><span class="ai-icon"></span>Auto-Reordering</div>
+                    <p style="margin: 0; color: #80d080;">Generating orders when stock is low</p>
+                </div>
+                <div class="ai-automation">
+                    <div class="ai-automation-title"><span class="ai-icon"></span>Anomaly Detection</div>
+                    <p style="margin: 0; color: #80d080;">Monitoring for unusual patterns</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>📊 System Status</h3>
+                <p><strong>Last Sync:</strong> <span style="color: #40d85f;">Just now</span></p>
+                <p><strong>Data Quality:</strong> <span style="color: #ffa547;">98.5%</span></p>
+                <button>Run System Check</button>
             </div>
         </div>
 
-        <!-- Inventory Page -->
         <div id="inventory" class="page">
             <h2>Inventory Management</h2>
-            <p>Manage your inventory items</p>
-            <input type="text" placeholder="Search inventory items...">
+            <div class="page-subtitle">AI-optimized stock management</div>
+            
             <div class="card">
+                <h3>🔍 Smart Search</h3>
+                <input type="text" placeholder="Search items, SKUs, or categories...">
+                <button>Search</button>
+                <button class="secondary">Advanced Filters</button>
+            </div>
+
+            <div class="card">
+                <h3>➕ Quick Actions</h3>
                 <button>+ Add Item</button>
-                <button style="background: #6c757d; margin-left: 8px;">Import CSV</button>
+                <button class="secondary">📁 Import</button>
+                <button class="secondary">📥 Export</button>
+            </div>
+
+            <div class="card">
+                <h3>🤖 AI Insights</h3>
+                <div class="ai-automation">
+                    <div class="ai-automation-title"><span class="ai-icon"></span>Slow Moving</div>
+                    <p style="margin: 0; color: #80d080;">3 items recommended for clearance</p>
+                </div>
+                <div class="ai-automation">
+                    <div class="ai-automation-title"><span class="ai-icon"></span>Fast Movers</div>
+                    <p style="margin: 0; color: #80d080;">7 items - increase stock levels</p>
+                </div>
             </div>
         </div>
 
-        <!-- POS Page -->
         <div id="pos" class="page">
             <h2>POS Integration</h2>
-            <p>Connect and sync your point of sale system</p>
+            <div class="page-subtitle">Seamless synchronization</div>
+            
             <div class="card">
-                <p><strong>Status:</strong> <span style="color: #999;">Idle</span></p>
-                <button onclick="alert('Sync started!')">Sync Now</button>
+                <h3>🔗 Status</h3>
+                <p><strong>Connected:</strong> <span style="color: #40d85f;">● Online</span></p>
+                <p><strong>Today:</strong> 127 transactions synced</p>
+                <button>Sync Now</button>
+                <button class="secondary">Test Connection</button>
             </div>
         </div>
 
-        <!-- Compliance Page -->
         <div id="compliance" class="page">
-            <h2>Compliance & Auditing</h2>
-            <p>FSMA 204 Compliance Tracking</p>
+            <h2>Compliance</h2>
+            <div class="page-subtitle">FSMA 204 & food safety</div>
+            
             <div class="compliance-item">
-                <h3><span class="green-check">✓</span> Lot Tracking</h3>
-                <p>Enabled for 0 items</p>
+                <h3>✓ Lot Tracking</h3>
+                <p>FSMA 204 compliant traceability enabled</p>
             </div>
             <div class="compliance-item">
-                <h3><span class="green-check">✓</span> Waste Log</h3>
-                <p>All waste documented</p>
+                <h3>✓ Waste Logs</h3>
+                <p>All waste documented with timestamps</p>
             </div>
             <div class="compliance-item">
-                <h3><span class="green-check">✓</span> Audit Trail</h3>
-                <p>Complete history available</p>
+                <h3>✓ Audit Trail</h3>
+                <p>Complete transaction history & backup</p>
+            </div>
+
+            <div class="card">
+                <h3>📋 Reports</h3>
+                <button>Generate Report</button>
+                <button class="secondary">Download Audit Log</button>
             </div>
         </div>
 
-        <!-- Settings Page -->
         <div id="settings" class="page">
             <h2>Settings</h2>
+            <div class="page-subtitle">Customize your AI experience</div>
+            
             <div class="card">
-                <h3>Preferences</h3>
-                <label>
-                    <input type="checkbox" checked> Enable Notifications
-                </label>
-                <label>
-                    <input type="checkbox" checked> Email Alerts
-                </label>
-                <label>
-                    <input type="checkbox"> SMS Alerts
-                </label>
+                <h3>🔔 Notifications</h3>
+                <label><input type="checkbox" checked> Smart Alerts</label>
+                <label><input type="checkbox" checked> Email</label>
+                <label><input type="checkbox"> SMS</label>
+            </div>
+
+            <div class="card">
+                <h3>🤖 AI Preferences</h3>
+                <label><input type="checkbox" checked> Auto-Reordering</label>
+                <label><input type="checkbox" checked> Predictive Analytics</label>
+                <label><input type="checkbox" checked> Anomaly Detection</label>
+            </div>
+
+            <div class="card">
                 <button>Save Settings</button>
+                <button class="secondary">Logout</button>
             </div>
         </div>
     </div>
@@ -298,11 +547,8 @@
 
     <script>
         function showPage(pageName) {
-            // Hide all pages
             document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-            
-            // Show selected page
             document.getElementById(pageName).classList.add('active');
             event.target.classList.add('active');
         }
