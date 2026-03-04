@@ -164,35 +164,39 @@
 
         .header {
             background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 50%, #ffa547 100%);
-            padding: 24px 20px;
+            padding: 16px 20px;
             box-shadow: 0 8px 32px rgba(255, 107, 53, 0.3);
             border-bottom: 2px solid #ffc470;
             position: relative;
             overflow: hidden;
+            min-height: 70px;
         }
 
         .header h1 {
-            font-size: 32px;
+            font-size: 24px;
             font-weight: 700;
-            margin: 0;
+            margin: 0 0 4px 0;
             color: #fff;
             text-shadow: 0 2px 8px rgba(0,0,0,0.2);
             position: relative;
             z-index: 1;
+            line-height: 1.3;
         }
 
         .header-subtitle {
-            font-size: 12px;
+            font-size: 11px;
             color: rgba(255,255,255,0.9);
-            margin-top: 4px;
+            margin: 0;
         }
 
         .user-info {
             position: absolute;
-            top: 20px;
+            bottom: 8px;
             right: 20px;
             color: white;
-            font-size: 12px;
+            font-size: 10px;
+            text-align: right;
+            line-height: 1.3;
         }
 
         .owner-badge {
@@ -497,7 +501,7 @@
     <!-- App Page -->
     <div class="app-container" id="appContainer" style="display: none;">
         <div class="header">
-            <h1>🌟 NOLA Park Inventory</h1>
+            <h1>NOCPC Concessions Inventory</h1>
             <div class="header-subtitle">AI-Powered Operations Hub</div>
             <div class="user-info">
                 <span id="userDisplay"></span>
