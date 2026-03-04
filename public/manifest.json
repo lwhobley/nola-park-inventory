@@ -1,7 +1,7 @@
 {
-  "short_name": "NOLA Park",
-  "name": "NOLA Park Inventory System",
-  "description": "AI-powered inventory management system for NOLA City Park",
+  "short_name": "NOCPC Concessions",
+  "name": "NOCPC Concessions Inventory System",
+  "description": "AI-powered concessions inventory management system",
   "icons": [
     {
       "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23ff6b35' width='192' height='192'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-size='100' fill='white' font-weight='bold'>🌟</text></svg>",
@@ -31,7 +31,7 @@
   "categories": ["productivity", "business"],
   "screenshots": [
     {
-      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 720'><rect fill='%230f0e1e' width='540' height='720'/><rect fill='%23ff6b35' width='540' height='120'/><text x='270' y='70' text-anchor='middle' font-size='32' fill='white' font-weight='bold'>NOLA Park Inventory</text></svg>",
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 720'><rect fill='%230f0e1e' width='540' height='720'/><rect fill='%23ff6b35' width='540' height='120'/><text x='270' y='70' text-anchor='middle' font-size='28' fill='white' font-weight='bold'>NOCPC Concessions Inventory</text></svg>",
       "sizes": "540x720",
       "type": "image/svg+xml",
       "form_factor": "narrow"
