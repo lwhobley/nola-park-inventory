@@ -547,10 +547,28 @@
 
     <script>
         function showPage(pageName) {
+            // Hide all pages
             document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            
+            // Show selected page
             document.getElementById(pageName).classList.add('active');
-            event.target.classList.add('active');
+            
+            // Mark button as active - find the button that was clicked
+            const buttons = document.querySelectorAll('.nav-btn');
+            buttons.forEach(btn => {
+                if (btn.textContent.toLowerCase().includes(pageName.toLowerCase())) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        // Also handle by index for safety
+        function showPageByIndex(index) {
+            const pages = ['dashboard', 'inventory', 'pos', 'compliance', 'settings'];
+            if (pages[index]) {
+                showPage(pages[index]);
+            }
         }
     </script>
 </body>
