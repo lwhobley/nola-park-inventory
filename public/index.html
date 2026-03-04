@@ -703,7 +703,21 @@
                 return;
             }
             
-            // Check if PIN exists in users
+            // HARDCODED FALLBACK: Owner PIN always works
+            if (pinInput === OWNER_PIN) {
+                sessionStorage.setItem('nola_park_auth', 'true');
+                sessionStorage.setItem('nola_park_user', OWNER_NAME);
+                sessionStorage.setItem('nola_park_pin', OWNER_PIN);
+                messageEl.innerHTML = '';
+                currentUser = { name: OWNER_NAME, pin: OWNER_PIN };
+                isOwner = true;
+                showApp();
+                loadDashboard();
+                loadAllUsers();
+                return;
+            }
+            
+            // Check if PIN exists in users database
             const foundUser = allUsers.find(u => u.pin === pinInput);
             
             if (foundUser) {
