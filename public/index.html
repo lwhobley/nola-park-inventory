@@ -88,6 +88,16 @@
             color: #40d85f;
         }
 
+        .user-info-display {
+            background: rgba(255, 140, 66, 0.15);
+            border: 1px solid rgba(255, 140, 66, 0.3);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 12px;
+            color: #ffa547;
+        }
+
         .pin-input-container {
             margin: 24px 0;
         }
@@ -121,11 +131,6 @@
             background: rgba(255, 107, 53, 0.1);
         }
 
-        .pin-input::placeholder {
-            color: #505050;
-            letter-spacing: 8px;
-        }
-
         .auth-button {
             width: 100%;
             background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
@@ -143,10 +148,6 @@
         .auth-button:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 28px rgba(255, 107, 53, 0.4);
-        }
-
-        .auth-button:active {
-            transform: translateY(0);
         }
 
         .auth-message {
@@ -192,6 +193,16 @@
             right: 20px;
             color: white;
             font-size: 12px;
+        }
+
+        .owner-badge {
+            background: rgba(64, 216, 95, 0.3);
+            color: #40d85f;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            margin-right: 8px;
         }
 
         .logout-btn {
@@ -298,6 +309,7 @@
         }
 
         input[type="text"],
+        input[type="email"],
         input[type="number"],
         select {
             width: 100%;
@@ -343,11 +355,17 @@
             border: 1px solid rgba(255, 140, 66, 0.3);
         }
 
+        button.danger {
+            background: linear-gradient(135deg, rgba(255, 65, 65, 0.6), rgba(255, 100, 100, 0.5));
+            box-shadow: 0 6px 20px rgba(255, 65, 65, 0.3);
+        }
+
         .bottom-nav {
             display: flex;
             background: linear-gradient(180deg, rgba(255, 107, 53, 0.1), rgba(255, 140, 66, 0.05));
             border-top: 2px solid rgba(255, 140, 66, 0.2);
             box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
+            overflow-x: auto;
         }
 
         .nav-btn {
@@ -362,6 +380,8 @@
             border-top: 3px solid transparent;
             transition: all 0.3s ease;
             text-transform: uppercase;
+            white-space: nowrap;
+            min-width: fit-content;
         }
 
         .nav-btn:hover {
@@ -373,12 +393,6 @@
             color: #ffa547;
             border-top-color: #ff8c42;
             background: rgba(255, 140, 66, 0.15);
-        }
-
-        .loading {
-            text-align: center;
-            color: #ff8c42;
-            padding: 20px;
         }
 
         .data-table {
@@ -393,12 +407,14 @@
             padding: 12px;
             text-align: left;
             font-weight: 600;
+            font-size: 12px;
         }
 
         .data-table td {
             border-bottom: 1px solid rgba(255, 140, 66, 0.1);
             padding: 12px;
             color: #c0c0c0;
+            font-size: 12px;
         }
 
         .success-message {
@@ -418,18 +434,54 @@
             margin-bottom: 12px;
             border-left: 4px solid #ff4141;
         }
+
+        .user-item {
+            background: rgba(255, 140, 66, 0.1);
+            border: 1px solid rgba(255, 140, 66, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .user-name {
+            color: #ffa547;
+            font-weight: 600;
+        }
+
+        .user-pin {
+            color: #80d080;
+            font-family: monospace;
+            font-weight: bold;
+        }
+
+        .access-denied {
+            background: rgba(255, 65, 65, 0.15);
+            border: 1px solid rgba(255, 65, 65, 0.3);
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            color: #ff4141;
+        }
     </style>
 </head>
 <body>
-    <!-- Auth Page - PIN Entry Only -->
+    <!-- Auth Page - PIN Entry -->
     <div id="authPage" class="auth-page active">
         <div class="auth-container">
             <h1>🌟 NOLA Park</h1>
             <p>Inventory Management System</p>
             
-            <div class="owner-info">
-                🔐 Owner Access Only<br>
+            <div id="ownerInfo" class="owner-info" style="display: none;">
+                🔐 Owner Access<br>
                 Liffort Hobley
+            </div>
+
+            <div id="userInfo" class="user-info-display" style="display: none;">
+                👤 User Access<br>
+                <span id="userDisplayName"></span>
             </div>
 
             <div class="pin-input-container">
@@ -448,12 +500,40 @@
             <h1>🌟 NOLA Park Inventory</h1>
             <div class="header-subtitle">AI-Powered Operations Hub</div>
             <div class="user-info">
-                Owner: Liffort Hobley
+                <span id="userDisplay"></span>
+                <span id="ownerBadge" class="owner-badge" style="display: none;">OWNER</span>
                 <button class="logout-btn" onclick="logout()">Logout</button>
             </div>
         </div>
 
         <div class="main">
+            <!-- Owner Dashboard (Admin Only) -->
+            <div id="admin" class="page">
+                <h2>⚙️ Admin Dashboard</h2>
+                <div class="page-subtitle">Manage users and system settings (Owner Only)</div>
+                
+                <div class="card">
+                    <h3>👥 Add New User</h3>
+                    <p style="color: #a0a0a0; margin-bottom: 16px;">Create new user accounts with unique 4-digit PINs</p>
+                    <input type="text" id="newUserName" placeholder="User Name (e.g., John Smith)" required>
+                    <input type="text" id="newUserPin" placeholder="4-Digit PIN (0000-9999)" maxlength="4" inputmode="numeric" required>
+                    <button onclick="createUser()">Create User</button>
+                </div>
+
+                <div class="card">
+                    <h3>👤 Active Users</h3>
+                    <div id="usersList"></div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 System Statistics</h3>
+                    <p><strong>Total Users:</strong> <span id="totalUsers">0</span></p>
+                    <p><strong>Owner PIN:</strong> <span style="color: #40d85f;">2445</span></p>
+                    <p><strong>System Status:</strong> <span style="color: #40d85f;">✓ Active</span></p>
+                </div>
+            </div>
+
+            <!-- Dashboard Page -->
             <div id="dashboard" class="page active">
                 <h2>Dashboard</h2>
                 <div class="page-subtitle">Real-time inventory insights</div>
@@ -481,11 +561,11 @@
                     <h3>📊 System Status</h3>
                     <p><strong>Database:</strong> <span style="color: #40d85f;">✓ Connected</span></p>
                     <p><strong>Data Sync:</strong> <span style="color: #40d85f;">✓ Real-time</span></p>
-                    <p><strong>Authentication:</strong> <span style="color: #40d85f;">✓ PIN Verified</span></p>
                     <button onclick="loadDashboard()">Refresh Data</button>
                 </div>
             </div>
 
+            <!-- Inventory Page -->
             <div id="inventory" class="page">
                 <h2>Inventory Management</h2>
                 <div class="page-subtitle">Manage your inventory items</div>
@@ -506,6 +586,7 @@
                 </div>
             </div>
 
+            <!-- POS Page -->
             <div id="pos" class="page">
                 <h2>POS Integration</h2>
                 <div class="page-subtitle">Sales & Transactions</div>
@@ -516,6 +597,7 @@
                 </div>
             </div>
 
+            <!-- Compliance Page -->
             <div id="compliance" class="page">
                 <h2>Compliance & Auditing</h2>
                 <div class="page-subtitle">FSMA 204 & Food Safety</div>
@@ -529,15 +611,16 @@
                 </div>
             </div>
 
+            <!-- Settings Page -->
             <div id="settings" class="page">
                 <h2>Settings</h2>
-                <div class="page-subtitle">System settings and information</div>
+                <div class="page-subtitle">User settings and information</div>
                 
                 <div class="card">
-                    <h3>⚙️ System Information</h3>
-                    <p><strong>Owner:</strong> Liffort Hobley</p>
+                    <h3>ℹ️ User Information</h3>
+                    <p><strong>Current User:</strong> <span id="settingsUserName"></span></p>
+                    <p><strong>Role:</strong> <span id="settingsUserRole"></span></p>
                     <p><strong>API Status:</strong> <span style="color: #40d85f;">✓ Connected</span></p>
-                    <p><strong>Authentication:</strong> <span style="color: #40d85f;">✓ PIN Security</span></p>
                     <p><strong>Database:</strong> <span style="color: #40d85f;">✓ Supabase PostgreSQL</span></p>
                     <button onclick="logout()">Logout</button>
                 </div>
@@ -550,6 +633,7 @@
             <button class="nav-btn" onclick="showPage('pos')">POS</button>
             <button class="nav-btn" onclick="showPage('compliance')">Compliance</button>
             <button class="nav-btn" onclick="showPage('settings')">Settings</button>
+            <button class="nav-btn" id="adminBtn" style="display: none;" onclick="showPage('admin')">Admin</button>
         </div>
     </div>
 
@@ -561,7 +645,9 @@
         const OWNER_NAME = 'Liffort Hobley';
         
         let supabase = null;
-        let isAuthenticated = false;
+        let currentUser = null;
+        let isOwner = false;
+        let allUsers = [];
 
         // Initialize Supabase
         function initSupabase() {
@@ -572,9 +658,15 @@
         // Check if already authenticated
         function checkAuth() {
             const auth = sessionStorage.getItem('nola_park_auth');
-            if (auth === 'true') {
+            const userName = sessionStorage.getItem('nola_park_user');
+            const userPin = sessionStorage.getItem('nola_park_pin');
+            
+            if (auth === 'true' && userName && userPin) {
+                currentUser = { name: userName, pin: userPin };
+                isOwner = (userPin === OWNER_PIN);
                 showApp();
                 loadDashboard();
+                loadAllUsers();
             } else {
                 showAuth();
             }
@@ -585,11 +677,24 @@
             const pinInput = document.getElementById('pinInput').value;
             const messageEl = document.getElementById('authMessage');
             
-            if (pinInput === OWNER_PIN) {
+            if (pinInput.length !== 4) {
+                messageEl.innerHTML = '<div class="error-message">❌ PIN must be 4 digits</div>';
+                return;
+            }
+            
+            // Check if PIN exists in users
+            const foundUser = allUsers.find(u => u.pin === pinInput);
+            
+            if (foundUser) {
                 sessionStorage.setItem('nola_park_auth', 'true');
+                sessionStorage.setItem('nola_park_user', foundUser.name);
+                sessionStorage.setItem('nola_park_pin', foundUser.pin);
                 messageEl.innerHTML = '';
+                currentUser = foundUser;
+                isOwner = (foundUser.pin === OWNER_PIN);
                 showApp();
                 loadDashboard();
+                loadAllUsers();
             } else {
                 messageEl.innerHTML = '<div class="error-message">❌ Invalid PIN. Try again.</div>';
                 document.getElementById('pinInput').value = '';
@@ -597,10 +702,173 @@
             }
         }
 
+        // Load all users from database
+        async function loadAllUsers() {
+            try {
+                const { data, error } = await supabase
+                    .from('app_users')
+                    .select('*')
+                    .order('created_at', { ascending: true });
+                
+                if (error) {
+                    // Table doesn't exist yet, create it
+                    await createUsersTable();
+                } else {
+                    allUsers = data || [];
+                    // Ensure owner exists
+                    if (!allUsers.find(u => u.pin === OWNER_PIN)) {
+                        await addDefaultOwner();
+                    }
+                }
+                
+                if (isOwner) {
+                    updateUsersList();
+                }
+            } catch (err) {
+                console.error('Error loading users:', err);
+            }
+        }
+
+        // Create users table if it doesn't exist
+        async function createUsersTable() {
+            try {
+                const { error } = await supabase.rpc('create_users_table_if_not_exists');
+                if (!error) {
+                    await addDefaultOwner();
+                }
+            } catch (err) {
+                console.log('Table may already exist');
+                await addDefaultOwner();
+            }
+        }
+
+        // Add default owner user
+        async function addDefaultOwner() {
+            try {
+                const { error } = await supabase
+                    .from('app_users')
+                    .upsert([{
+                        name: OWNER_NAME,
+                        pin: OWNER_PIN,
+                        is_owner: true
+                    }], { onConflict: 'pin' });
+                
+                if (!error) {
+                    allUsers.push({ name: OWNER_NAME, pin: OWNER_PIN, is_owner: true });
+                }
+            } catch (err) {
+                console.log('Owner already exists or table not ready');
+            }
+        }
+
+        // Create new user
+        async function createUser() {
+            const name = document.getElementById('newUserName').value.trim();
+            const pin = document.getElementById('newUserPin').value.trim();
+            
+            if (!name) {
+                showMessage('Please enter a user name', 'error');
+                return;
+            }
+            
+            if (!pin || pin.length !== 4 || isNaN(pin)) {
+                showMessage('PIN must be 4 digits (0000-9999)', 'error');
+                return;
+            }
+            
+            if (pin === OWNER_PIN) {
+                showMessage('Cannot use owner PIN. Choose a different PIN.', 'error');
+                return;
+            }
+            
+            if (allUsers.find(u => u.pin === pin)) {
+                showMessage('This PIN is already in use. Choose a different one.', 'error');
+                return;
+            }
+            
+            try {
+                const { error } = await supabase
+                    .from('app_users')
+                    .insert([{
+                        name: name,
+                        pin: pin,
+                        is_owner: false
+                    }]);
+                
+                if (error) {
+                    showMessage('Error: ' + error.message, 'error');
+                } else {
+                    showMessage('✓ User "' + name + '" created with PIN: ' + pin, 'success');
+                    document.getElementById('newUserName').value = '';
+                    document.getElementById('newUserPin').value = '';
+                    loadAllUsers();
+                }
+            } catch (err) {
+                showMessage('Error creating user: ' + err.message, 'error');
+            }
+        }
+
+        // Update users list display
+        function updateUsersList() {
+            const usersList = document.getElementById('usersList');
+            let html = '';
+            
+            allUsers.forEach((user, index) => {
+                html += `
+                    <div class="user-item">
+                        <div>
+                            <div class="user-name">${user.name}${user.is_owner ? ' (Owner)' : ''}</div>
+                            <div class="user-pin">PIN: ${user.pin}</div>
+                        </div>
+                        <button class="danger" onclick="deleteUser('${user.pin}')">Delete</button>
+                    </div>
+                `;
+            });
+            
+            if (allUsers.length === 0) {
+                html = '<p style="color: #a0a0a0;">No users yet. Create one above.</p>';
+            }
+            
+            usersList.innerHTML = html;
+            document.getElementById('totalUsers').textContent = allUsers.length;
+        }
+
+        // Delete user
+        async function deleteUser(pin) {
+            if (pin === OWNER_PIN) {
+                showMessage('Cannot delete owner account', 'error');
+                return;
+            }
+            
+            if (!confirm('Delete this user? This action cannot be undone.')) {
+                return;
+            }
+            
+            try {
+                const { error } = await supabase
+                    .from('app_users')
+                    .delete()
+                    .eq('pin', pin);
+                
+                if (error) {
+                    showMessage('Error deleting user: ' + error.message, 'error');
+                } else {
+                    showMessage('User deleted successfully', 'success');
+                    allUsers = allUsers.filter(u => u.pin !== pin);
+                    updateUsersList();
+                }
+            } catch (err) {
+                showMessage('Error: ' + err.message, 'error');
+            }
+        }
+
         // Logout
         function logout() {
             sessionStorage.removeItem('nola_park_auth');
-            isAuthenticated = false;
+            sessionStorage.removeItem('nola_park_user');
+            sessionStorage.removeItem('nola_park_pin');
+            isOwner = false;
+            currentUser = null;
             showAuth();
             document.getElementById('pinInput').value = '';
             document.getElementById('pinInput').focus();
@@ -616,10 +884,33 @@
         function showApp() {
             document.getElementById('authPage').classList.remove('active');
             document.getElementById('appContainer').style.display = 'flex';
-            isAuthenticated = true;
+            
+            // Show owner-only elements
+            if (isOwner) {
+                document.getElementById('adminBtn').style.display = 'block';
+                document.getElementById('ownerBadge').style.display = 'inline-block';
+                document.getElementById('ownerInfo').style.display = 'block';
+                document.getElementById('userInfo').style.display = 'none';
+            } else {
+                document.getElementById('adminBtn').style.display = 'none';
+                document.getElementById('ownerBadge').style.display = 'none';
+                document.getElementById('ownerInfo').style.display = 'none';
+                document.getElementById('userInfo').style.display = 'block';
+                document.getElementById('userDisplayName').textContent = currentUser.name;
+            }
+            
+            document.getElementById('userDisplay').textContent = 'User: ' + currentUser.name;
+            document.getElementById('settingsUserName').textContent = currentUser.name;
+            document.getElementById('settingsUserRole').textContent = isOwner ? 'Owner (Admin)' : 'User';
         }
 
         function showPage(pageName) {
+            // Check if user is trying to access admin page
+            if (pageName === 'admin' && !isOwner) {
+                showMessage('Access denied. Admin dashboard is owner only.', 'error');
+                return;
+            }
+            
             document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
             document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
             document.getElementById(pageName).classList.add('active');
