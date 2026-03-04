@@ -218,6 +218,19 @@
             cursor: pointer;
             font-size: 12px;
             margin-left: 12px;
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 10;
+        }
+
+        .logout-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: scale(1.05);
+        }
+
+        .logout-btn:active {
+            transform: scale(0.98);
+        }
         }
 
         .main {
@@ -868,13 +881,16 @@
 
         // Logout
         function logout() {
-            sessionStorage.removeItem('nola_park_auth');
-            sessionStorage.removeItem('nola_park_user');
-            sessionStorage.removeItem('nola_park_pin');
+            sessionStorage.clear();
             isOwner = false;
             currentUser = null;
-            showAuth();
+            allUsers = [];
+            
+            // Clear UI
+            document.getElementById('authPage').classList.add('active');
+            document.getElementById('appContainer').style.display = 'none';
             document.getElementById('pinInput').value = '';
+            document.getElementById('authMessage').innerHTML = '';
             document.getElementById('pinInput').focus();
         }
 
