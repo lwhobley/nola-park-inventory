@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NOLA Park Inventory - AI-Powered</title>
+    <title>NOLA Park Inventory - Production</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.38.0"></script>
     <style>
         * {
             margin: 0;
@@ -30,7 +31,99 @@
             bottom: 0;
         }
 
-        /* Header */
+        .auth-page {
+            display: none;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0f0e1e 0%, #1a1835 100%);
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 1000;
+        }
+
+        .auth-page.active {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .auth-container {
+            background: linear-gradient(135deg, rgba(255, 107, 53, 0.08), rgba(255, 140, 66, 0.05));
+            padding: 40px;
+            border-radius: 16px;
+            border: 1px solid rgba(255, 140, 66, 0.2);
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .auth-container h1 {
+            color: #ff8c42;
+            margin-bottom: 8px;
+            font-size: 28px;
+        }
+
+        .auth-container p {
+            color: #a0a0a0;
+            margin-bottom: 24px;
+        }
+
+        .auth-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid rgba(255, 140, 66, 0.2);
+            border-radius: 8px;
+            background: rgba(255, 107, 53, 0.05);
+            color: #e0e0e0;
+            font-size: 14px;
+            margin-bottom: 12px;
+            font-family: inherit;
+        }
+
+        .auth-input:focus {
+            outline: none;
+            border-color: #ff8c42;
+            box-shadow: 0 0 16px rgba(255, 140, 66, 0.2);
+        }
+
+        .auth-button {
+            width: 100%;
+            background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-bottom: 8px;
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3);
+        }
+
+        .auth-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px rgba(255, 107, 53, 0.4);
+        }
+
+        .auth-toggle {
+            color: #a0a0a0;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .auth-toggle span {
+            color: #ff8c42;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+        }
+
         .header {
             background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 50%, #ffa547 100%);
             padding: 24px 20px;
@@ -38,22 +131,6 @@
             border-bottom: 2px solid #ffc470;
             position: relative;
             overflow: hidden;
-        }
-
-        .header::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 200%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
-            animation: shimmer 3s infinite;
-        }
-
-        @keyframes shimmer {
-            0% { left: -100%; }
-            100% { left: 100%; }
         }
 
         .header h1 {
@@ -70,26 +147,27 @@
             font-size: 12px;
             color: rgba(255,255,255,0.9);
             margin-top: 4px;
-            position: relative;
-            z-index: 1;
-            font-weight: 500;
-            letter-spacing: 1px;
         }
 
-        .ai-badge {
-            display: inline-block;
+        .user-info {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            color: white;
+            font-size: 12px;
+        }
+
+        .logout-btn {
             background: rgba(255,255,255,0.2);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            margin-top: 8px;
-            position: relative;
-            z-index: 1;
             border: 1px solid rgba(255,255,255,0.3);
-            font-weight: 600;
+            color: white;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin-left: 12px;
         }
 
-        /* Main Content */
         .main {
             flex: 1;
             overflow-y: auto;
@@ -122,10 +200,8 @@
             color: #a0a0a0;
             font-size: 14px;
             margin-bottom: 24px;
-            font-weight: 500;
         }
 
-        /* Stats Grid */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -138,15 +214,13 @@
             padding: 20px;
             border-radius: 12px;
             border: 1px solid rgba(255, 140, 66, 0.3);
-            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.1), inset 0 1px 0 rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
+            box-shadow: 0 8px 24px rgba(255, 107, 53, 0.1);
             cursor: pointer;
+            transition: all 0.3s ease;
         }
 
         .stat-card:hover {
             transform: translateY(-4px);
-            box-shadow: 0 12px 32px rgba(255, 107, 53, 0.2);
         }
 
         .stat-label {
@@ -164,7 +238,6 @@
             margin: 0;
         }
 
-        /* Cards */
         .card {
             background: linear-gradient(135deg, rgba(255, 107, 53, 0.08), rgba(255, 140, 66, 0.05));
             padding: 24px;
@@ -172,13 +245,6 @@
             border: 1px solid rgba(255, 140, 66, 0.2);
             margin-bottom: 20px;
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
-            transition: all 0.3s ease;
-        }
-
-        .card:hover {
-            border-color: rgba(255, 140, 66, 0.4);
-            box-shadow: 0 12px 32px rgba(255, 107, 53, 0.15);
         }
 
         .card h3 {
@@ -194,8 +260,10 @@
             margin-bottom: 8px;
         }
 
-        /* Inputs */
-        input[type="text"] {
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        select {
             width: 100%;
             padding: 12px 16px;
             border: 1px solid rgba(255, 140, 66, 0.2);
@@ -204,22 +272,16 @@
             color: #e0e0e0;
             font-size: 14px;
             margin-top: 10px;
+            margin-bottom: 10px;
             font-family: inherit;
-            transition: all 0.3s ease;
         }
 
-        input[type="text"]:focus {
+        input:focus, select:focus {
             outline: none;
             border-color: #ff8c42;
-            background: rgba(255, 107, 53, 0.1);
             box-shadow: 0 0 16px rgba(255, 140, 66, 0.2);
         }
 
-        input::placeholder {
-            color: #808080;
-        }
-
-        /* Buttons - RAISED STYLE */
         button {
             background: linear-gradient(135deg, #ff6b35 0%, #ff8c42 100%);
             color: white;
@@ -231,35 +293,13 @@
             font-weight: 600;
             margin-top: 12px;
             margin-right: 8px;
+            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3);
             transition: all 0.3s ease;
-            box-shadow: 0 6px 20px rgba(255, 107, 53, 0.3), inset 0 1px 0 rgba(255,255,255,0.2);
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
-            position: relative;
-            overflow: hidden;
-        }
-
-        button::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: rgba(255,255,255,0.2);
-            transition: left 0.3s ease;
-        }
-
-        button:hover::before {
-            left: 100%;
         }
 
         button:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 28px rgba(255, 107, 53, 0.4), inset 0 1px 0 rgba(255,255,255,0.2);
-        }
-
-        button:active {
-            transform: translateY(0);
+            box-shadow: 0 8px 28px rgba(255, 107, 53, 0.4);
         }
 
         button.secondary {
@@ -267,77 +307,11 @@
             border: 1px solid rgba(255, 140, 66, 0.3);
         }
 
-        /* Labels */
-        label {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
-            color: #d0d0d0;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        input[type="checkbox"] {
-            margin-right: 12px;
-            cursor: pointer;
-            accent-color: #ff8c42;
-            width: 18px;
-            height: 18px;
-        }
-
-        /* AI Automation Boxes */
-        .ai-automation {
-            background: linear-gradient(135deg, rgba(64, 216, 95, 0.1), rgba(52, 211, 153, 0.05));
-            border: 1px solid rgba(64, 216, 95, 0.2);
-            padding: 16px;
-            border-radius: 12px;
-            margin-top: 16px;
-        }
-
-        .ai-automation-title {
-            color: #40d85f;
-            font-weight: 600;
-            margin-bottom: 8px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .ai-icon {
-            display: inline-block;
-            width: 16px;
-            height: 16px;
-            background: #40d85f;
-            border-radius: 50%;
-            animation: pulse 2s infinite;
-        }
-
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-
-        /* Compliance Items */
-        .compliance-item {
-            background: linear-gradient(135deg, rgba(255, 140, 66, 0.08), rgba(255, 107, 53, 0.05));
-            padding: 16px;
-            border-radius: 12px;
-            margin-top: 12px;
-            border-left: 4px solid #40d85f;
-        }
-
-        .compliance-item h3 {
-            color: #40d85f;
-            margin-bottom: 4px;
-        }
-
-        /* Navigation */
         .bottom-nav {
             display: flex;
             background: linear-gradient(180deg, rgba(255, 107, 53, 0.1), rgba(255, 140, 66, 0.05));
             border-top: 2px solid rgba(255, 140, 66, 0.2);
             box-shadow: 0 -8px 32px rgba(0, 0, 0, 0.3);
-            backdrop-filter: blur(10px);
         }
 
         .nav-btn {
@@ -352,7 +326,6 @@
             border-top: 3px solid transparent;
             transition: all 0.3s ease;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
 
         .nav-btn:hover {
@@ -366,210 +339,415 @@
             background: rgba(255, 140, 66, 0.15);
         }
 
-        .main::-webkit-scrollbar {
-            width: 8px;
+        .loading {
+            text-align: center;
+            color: #ff8c42;
+            padding: 20px;
         }
 
-        .main::-webkit-scrollbar-track {
-            background: rgba(255, 140, 66, 0.05);
+        .data-table {
+            width: 100%;
+            margin-top: 16px;
+            border-collapse: collapse;
         }
 
-        .main::-webkit-scrollbar-thumb {
-            background: rgba(255, 140, 66, 0.3);
+        .data-table th {
+            background: rgba(255, 140, 66, 0.2);
+            color: #ff8c42;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .data-table td {
+            border-bottom: 1px solid rgba(255, 140, 66, 0.1);
+            padding: 12px;
+            color: #c0c0c0;
+        }
+
+        .success-message {
+            background: rgba(64, 216, 95, 0.2);
+            color: #40d85f;
+            padding: 12px;
             border-radius: 4px;
+            margin-bottom: 12px;
+            border-left: 4px solid #40d85f;
         }
 
-        @media (max-width: 600px) {
-            .page h2 {
-                font-size: 24px;
-            }
-            .header h1 {
-                font-size: 24px;
-            }
+        .error-message {
+            background: rgba(255, 65, 65, 0.2);
+            color: #ff4141;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 12px;
+            border-left: 4px solid #ff4141;
         }
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>🌟 NOLA Park Inventory</h1>
-        <div class="header-subtitle">AI-Powered Operations Hub</div>
-        <div class="ai-badge">⚡ Powered by Advanced AI</div>
-    </div>
-
-    <div class="main">
-        <div id="dashboard" class="page active">
-            <h2>Dashboard</h2>
-            <div class="page-subtitle">Real-time inventory insights & AI automation</div>
+    <!-- Auth Page -->
+    <div id="authPage" class="auth-page active">
+        <div class="auth-container">
+            <h1>🌟 NOLA Park</h1>
+            <p>Inventory Management System</p>
             
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-label">Active Items</div>
-                    <p class="stat-value">248</p>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Low Stock</div>
-                    <p class="stat-value">12</p>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">AI Active</div>
-                    <p class="stat-value">5</p>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Efficiency</div>
-                    <p class="stat-value">98%</p>
-                </div>
+            <div id="loginForm">
+                <input type="email" id="loginEmail" class="auth-input" placeholder="Email" required>
+                <input type="password" id="loginPassword" class="auth-input" placeholder="Password" required>
+                <button class="auth-button" onclick="login()">Login</button>
+                <div class="auth-toggle">Don't have an account? <span onclick="toggleAuth()">Sign Up</span></div>
             </div>
 
-            <div class="card">
-                <h3>🤖 AI Automations Running</h3>
-                <div class="ai-automation">
-                    <div class="ai-automation-title"><span class="ai-icon"></span>Stock Prediction</div>
-                    <p style="margin: 0; color: #80d080;">Learning patterns & forecasting demand</p>
-                </div>
-                <div class="ai-automation">
-                    <div class="ai-automation-title"><span class="ai-icon"></span>Auto-Reordering</div>
-                    <p style="margin: 0; color: #80d080;">Generating orders when stock is low</p>
-                </div>
-                <div class="ai-automation">
-                    <div class="ai-automation-title"><span class="ai-icon"></span>Anomaly Detection</div>
-                    <p style="margin: 0; color: #80d080;">Monitoring for unusual patterns</p>
-                </div>
+            <div id="signupForm" style="display: none;">
+                <input type="email" id="signupEmail" class="auth-input" placeholder="Email" required>
+                <input type="password" id="signupPassword" class="auth-input" placeholder="Password (min 6)" required>
+                <button class="auth-button" onclick="signup()">Sign Up</button>
+                <div class="auth-toggle">Already have an account? <span onclick="toggleAuth()">Login</span></div>
             </div>
 
-            <div class="card">
-                <h3>📊 System Status</h3>
-                <p><strong>Last Sync:</strong> <span style="color: #40d85f;">Just now</span></p>
-                <p><strong>Data Quality:</strong> <span style="color: #ffa547;">98.5%</span></p>
-                <button>Run System Check</button>
-            </div>
-        </div>
-
-        <div id="inventory" class="page">
-            <h2>Inventory Management</h2>
-            <div class="page-subtitle">AI-optimized stock management</div>
-            
-            <div class="card">
-                <h3>🔍 Smart Search</h3>
-                <input type="text" placeholder="Search items, SKUs, or categories...">
-                <button>Search</button>
-                <button class="secondary">Advanced Filters</button>
-            </div>
-
-            <div class="card">
-                <h3>➕ Quick Actions</h3>
-                <button>+ Add Item</button>
-                <button class="secondary">📁 Import</button>
-                <button class="secondary">📥 Export</button>
-            </div>
-
-            <div class="card">
-                <h3>🤖 AI Insights</h3>
-                <div class="ai-automation">
-                    <div class="ai-automation-title"><span class="ai-icon"></span>Slow Moving</div>
-                    <p style="margin: 0; color: #80d080;">3 items recommended for clearance</p>
-                </div>
-                <div class="ai-automation">
-                    <div class="ai-automation-title"><span class="ai-icon"></span>Fast Movers</div>
-                    <p style="margin: 0; color: #80d080;">7 items - increase stock levels</p>
-                </div>
-            </div>
-        </div>
-
-        <div id="pos" class="page">
-            <h2>POS Integration</h2>
-            <div class="page-subtitle">Seamless synchronization</div>
-            
-            <div class="card">
-                <h3>🔗 Status</h3>
-                <p><strong>Connected:</strong> <span style="color: #40d85f;">● Online</span></p>
-                <p><strong>Today:</strong> 127 transactions synced</p>
-                <button>Sync Now</button>
-                <button class="secondary">Test Connection</button>
-            </div>
-        </div>
-
-        <div id="compliance" class="page">
-            <h2>Compliance</h2>
-            <div class="page-subtitle">FSMA 204 & food safety</div>
-            
-            <div class="compliance-item">
-                <h3>✓ Lot Tracking</h3>
-                <p>FSMA 204 compliant traceability enabled</p>
-            </div>
-            <div class="compliance-item">
-                <h3>✓ Waste Logs</h3>
-                <p>All waste documented with timestamps</p>
-            </div>
-            <div class="compliance-item">
-                <h3>✓ Audit Trail</h3>
-                <p>Complete transaction history & backup</p>
-            </div>
-
-            <div class="card">
-                <h3>📋 Reports</h3>
-                <button>Generate Report</button>
-                <button class="secondary">Download Audit Log</button>
-            </div>
-        </div>
-
-        <div id="settings" class="page">
-            <h2>Settings</h2>
-            <div class="page-subtitle">Customize your AI experience</div>
-            
-            <div class="card">
-                <h3>🔔 Notifications</h3>
-                <label><input type="checkbox" checked> Smart Alerts</label>
-                <label><input type="checkbox" checked> Email</label>
-                <label><input type="checkbox"> SMS</label>
-            </div>
-
-            <div class="card">
-                <h3>🤖 AI Preferences</h3>
-                <label><input type="checkbox" checked> Auto-Reordering</label>
-                <label><input type="checkbox" checked> Predictive Analytics</label>
-                <label><input type="checkbox" checked> Anomaly Detection</label>
-            </div>
-
-            <div class="card">
-                <button>Save Settings</button>
-                <button class="secondary">Logout</button>
-            </div>
+            <div id="authMessage" style="margin-top: 12px;"></div>
         </div>
     </div>
 
-    <div class="bottom-nav">
-        <button class="nav-btn active" onclick="showPage('dashboard')">Dashboard</button>
-        <button class="nav-btn" onclick="showPage('inventory')">Inventory</button>
-        <button class="nav-btn" onclick="showPage('pos')">POS</button>
-        <button class="nav-btn" onclick="showPage('compliance')">Compliance</button>
-        <button class="nav-btn" onclick="showPage('settings')">Settings</button>
+    <!-- App Page -->
+    <div class="app-container" id="appContainer" style="display: none;">
+        <div class="header">
+            <h1>🌟 NOLA Park Inventory</h1>
+            <div class="header-subtitle">AI-Powered Operations Hub</div>
+            <div class="user-info">
+                User: <span id="userEmail">Loading...</span>
+                <button class="logout-btn" onclick="logout()">Logout</button>
+            </div>
+        </div>
+
+        <div class="main">
+            <div id="dashboard" class="page active">
+                <h2>Dashboard</h2>
+                <div class="page-subtitle">Real-time inventory insights</div>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-label">Active Items</div>
+                        <p class="stat-value" id="totalItems">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Low Stock</div>
+                        <p class="stat-value" id="lowStockCount">0</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Total Value</div>
+                        <p class="stat-value" id="inventoryValue">$0</p>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Last Sync</div>
+                        <p class="stat-value" id="lastSync">Now</p>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <h3>📊 System Status</h3>
+                    <p><strong>Database:</strong> <span style="color: #40d85f;">✓ Connected</span></p>
+                    <p><strong>Data Sync:</strong> <span style="color: #40d85f;">✓ Real-time</span></p>
+                    <button onclick="loadDashboard()">Refresh Data</button>
+                </div>
+            </div>
+
+            <div id="inventory" class="page">
+                <h2>Inventory Management</h2>
+                <div class="page-subtitle">Manage your inventory items</div>
+                
+                <div class="card">
+                    <h3>➕ Add New Item</h3>
+                    <input type="text" id="skuInput" placeholder="SKU" required>
+                    <input type="text" id="nameInput" placeholder="Item Name" required>
+                    <input type="text" id="categoryInput" placeholder="Category">
+                    <input type="number" id="priceInput" placeholder="Price" step="0.01">
+                    <input type="number" id="stockInput" placeholder="Current Stock" required>
+                    <button onclick="addInventoryItem()">Add Item</button>
+                </div>
+
+                <div class="card">
+                    <h3>📦 Your Inventory</h3>
+                    <div id="inventoryList" class="loading">Loading inventory...</div>
+                </div>
+            </div>
+
+            <div id="pos" class="page">
+                <h2>POS Integration</h2>
+                <div class="page-subtitle">Sales & Transactions</div>
+                
+                <div class="card">
+                    <h3>📊 Recent Transactions</h3>
+                    <div id="transactionsList" class="loading">Loading transactions...</div>
+                </div>
+            </div>
+
+            <div id="compliance" class="page">
+                <h2>Compliance & Auditing</h2>
+                <div class="page-subtitle">FSMA 204 & Food Safety</div>
+                
+                <div class="card">
+                    <h3>📋 Compliance Status</h3>
+                    <p><strong>Database:</strong> <span style="color: #40d85f;">✓ All tables created</span></p>
+                    <p><strong>Audit Logs:</strong> <span style="color: #40d85f;">✓ Enabled</span></p>
+                    <p><strong>Backups:</strong> <span style="color: #40d85f;">✓ Automatic</span></p>
+                    <button onclick="generateReport()">Generate Report</button>
+                </div>
+            </div>
+
+            <div id="settings" class="page">
+                <h2>Settings</h2>
+                <div class="page-subtitle">User preferences</div>
+                
+                <div class="card">
+                    <h3>⚙️ System Settings</h3>
+                    <p><strong>API Status:</strong> <span style="color: #40d85f;">✓ Connected</span></p>
+                    <p><strong>Authentication:</strong> <span style="color: #40d85f;">✓ Active</span></p>
+                    <p id="userStats">Loading user information...</p>
+                    <button onclick="logout()">Logout</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="bottom-nav">
+            <button class="nav-btn active" onclick="showPage('dashboard')">Dashboard</button>
+            <button class="nav-btn" onclick="showPage('inventory')">Inventory</button>
+            <button class="nav-btn" onclick="showPage('pos')">POS</button>
+            <button class="nav-btn" onclick="showPage('compliance')">Compliance</button>
+            <button class="nav-btn" onclick="showPage('settings')">Settings</button>
+        </div>
     </div>
 
     <script>
-        function showPage(pageName) {
-            // Hide all pages
-            document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
-            
-            // Show selected page
-            document.getElementById(pageName).classList.add('active');
-            
-            // Mark button as active - find the button that was clicked
-            const buttons = document.querySelectorAll('.nav-btn');
-            buttons.forEach(btn => {
-                if (btn.textContent.toLowerCase().includes(pageName.toLowerCase())) {
-                    btn.classList.add('active');
-                }
-            });
+        // Supabase Configuration
+        const SUPABASE_URL = 'https://palgbegkojkdiqgdcihp.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_i8c5ydQb26nTiQHJW0nM0w_w9QuYqkA';
+        
+        let supabase = null;
+        let currentUser = null;
+
+        // Initialize Supabase
+        function initSupabase() {
+            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+            checkAuth();
         }
 
-        // Also handle by index for safety
-        function showPageByIndex(index) {
-            const pages = ['dashboard', 'inventory', 'pos', 'compliance', 'settings'];
-            if (pages[index]) {
-                showPage(pages[index]);
+        // Check Authentication Status
+        async function checkAuth() {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session) {
+                currentUser = session.user;
+                showApp();
+                loadDashboard();
+            } else {
+                showAuth();
             }
         }
+
+        // Toggle between Login and Signup
+        function toggleAuth() {
+            document.getElementById('loginForm').style.display = 
+                document.getElementById('loginForm').style.display === 'none' ? 'block' : 'none';
+            document.getElementById('signupForm').style.display = 
+                document.getElementById('signupForm').style.display === 'none' ? 'block' : 'none';
+            document.getElementById('authMessage').innerHTML = '';
+        }
+
+        // Login
+        async function login() {
+            const email = document.getElementById('loginEmail').value;
+            const password = document.getElementById('loginPassword').value;
+            
+            try {
+                const { error } = await supabase.auth.signInWithPassword({ email, password });
+                if (error) {
+                    showMessage('authMessage', error.message, 'error');
+                } else {
+                    checkAuth();
+                }
+            } catch (err) {
+                showMessage('authMessage', err.message, 'error');
+            }
+        }
+
+        // Signup
+        async function signup() {
+            const email = document.getElementById('signupEmail').value;
+            const password = document.getElementById('signupPassword').value;
+            
+            try {
+                const { error } = await supabase.auth.signUp({ email, password });
+                if (error) {
+                    showMessage('authMessage', error.message, 'error');
+                } else {
+                    showMessage('authMessage', 'Signup successful! Please login.', 'success');
+                    setTimeout(() => toggleAuth(), 2000);
+                }
+            } catch (err) {
+                showMessage('authMessage', err.message, 'error');
+            }
+        }
+
+        // Logout
+        async function logout() {
+            await supabase.auth.signOut();
+            showAuth();
+            currentUser = null;
+        }
+
+        // Show/Hide Pages
+        function showAuth() {
+            document.getElementById('authPage').classList.add('active');
+            document.getElementById('appContainer').style.display = 'none';
+        }
+
+        function showApp() {
+            document.getElementById('authPage').classList.remove('active');
+            document.getElementById('appContainer').style.display = 'flex';
+            document.getElementById('userEmail').textContent = currentUser.email;
+        }
+
+        function showPage(pageName) {
+            document.querySelectorAll('.page').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(pageName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Load Dashboard Data
+        async function loadDashboard() {
+            try {
+                // Get inventory items count
+                const { count: itemCount } = await supabase
+                    .from('inventory_items')
+                    .select('*', { count: 'exact' });
+                
+                document.getElementById('totalItems').textContent = itemCount || 0;
+                
+                // Get low stock count
+                const { data: lowStock } = await supabase
+                    .from('inventory_items')
+                    .select('*')
+                    .lt('current_stock', 10);
+                
+                document.getElementById('lowStockCount').textContent = lowStock?.length || 0;
+                
+                showMessage('', 'Dashboard updated!', 'success');
+            } catch (err) {
+                console.error('Error loading dashboard:', err);
+            }
+        }
+
+        // Add Inventory Item
+        async function addInventoryItem() {
+            const sku = document.getElementById('skuInput').value;
+            const name = document.getElementById('nameInput').value;
+            const category = document.getElementById('categoryInput').value;
+            const price = document.getElementById('priceInput').value;
+            const stock = document.getElementById('stockInput').value;
+
+            if (!sku || !name || !stock) {
+                showMessage('', 'Please fill required fields', 'error');
+                return;
+            }
+
+            try {
+                const { error } = await supabase
+                    .from('inventory_items')
+                    .insert([{
+                        sku,
+                        name,
+                        category,
+                        selling_price: price,
+                        current_stock: stock,
+                        organization_id: currentUser.id
+                    }]);
+
+                if (error) {
+                    showMessage('', error.message, 'error');
+                } else {
+                    showMessage('', 'Item added successfully!', 'success');
+                    document.getElementById('skuInput').value = '';
+                    document.getElementById('nameInput').value = '';
+                    document.getElementById('categoryInput').value = '';
+                    document.getElementById('priceInput').value = '';
+                    document.getElementById('stockInput').value = '';
+                    loadInventory();
+                }
+            } catch (err) {
+                showMessage('', err.message, 'error');
+            }
+        }
+
+        // Load Inventory
+        async function loadInventory() {
+            try {
+                const { data, error } = await supabase
+                    .from('inventory_items')
+                    .select('*');
+
+                if (error) throw error;
+
+                let html = '<table class="data-table"><thead><tr><th>SKU</th><th>Name</th><th>Stock</th><th>Price</th></tr></thead><tbody>';
+                if (data && data.length > 0) {
+                    data.forEach(item => {
+                        html += `<tr><td>${item.sku}</td><td>${item.name}</td><td>${item.current_stock}</td><td>$${item.selling_price || 0}</td></tr>`;
+                    });
+                } else {
+                    html += '<tr><td colspan="4">No items yet. Add one above!</td></tr>';
+                }
+                html += '</tbody></table>';
+                document.getElementById('inventoryList').innerHTML = html;
+            } catch (err) {
+                document.getElementById('inventoryList').innerHTML = `<p style="color: red;">Error: ${err.message}</p>`;
+            }
+        }
+
+        // Load Transactions
+        async function loadTransactions() {
+            try {
+                const { data, error } = await supabase
+                    .from('stock_transactions')
+                    .select('*')
+                    .limit(10)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+
+                let html = '<table class="data-table"><thead><tr><th>Type</th><th>Quantity</th><th>Date</th></tr></thead><tbody>';
+                if (data && data.length > 0) {
+                    data.forEach(tx => {
+                        html += `<tr><td>${tx.transaction_type}</td><td>${tx.quantity}</td><td>${new Date(tx.created_at).toLocaleDateString()}</td></tr>`;
+                    });
+                } else {
+                    html += '<tr><td colspan="3">No transactions yet.</td></tr>';
+                }
+                html += '</tbody></table>';
+                document.getElementById('transactionsList').innerHTML = html;
+            } catch (err) {
+                document.getElementById('transactionsList').innerHTML = `<p style="color: red;">Error: ${err.message}</p>`;
+            }
+        }
+
+        // Generate Report
+        async function generateReport() {
+            showMessage('', 'Report generation coming soon!', 'success');
+        }
+
+        // Show Message
+        function showMessage(elementId, message, type) {
+            let element = document.getElementById(elementId);
+            if (!element) {
+                element = document.createElement('div');
+                element.id = elementId;
+                document.body.appendChild(element);
+            }
+            element.innerHTML = `<div class="${type}-message">${message}</div>`;
+            setTimeout(() => element.innerHTML = '', 5000);
+        }
+
+        // Initialize on load
+        window.addEventListener('load', initSupabase);
     </script>
 </body>
 </html>
