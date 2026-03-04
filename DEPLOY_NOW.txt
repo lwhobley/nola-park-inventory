@@ -1,0 +1,11 @@
+NOCPC CONCESSIONS INVENTORY - DEPLOYMENT TRIGGERED
+
+Latest Changes:
+- App name: NOCPC Concessions Inventory
+- Navigation: All 6 buttons visible (Dashboard, Inventory, POS, Compliance, Settings, Admin)
+- Header: Username at bottom right (no overlap)
+- Logout: Fully functional
+
+Latest Commit: 4edb8cb
+Status: Ready for deployment
+Date: 2026-03-04
