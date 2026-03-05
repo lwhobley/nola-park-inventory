@@ -1,0 +1,6 @@
+{
+  "buildpack": "react-scripts",
+  "buildCommand": "npm run build",
+  "outputDirectory": "build",
+  "nodeVersion": "18"
+}
